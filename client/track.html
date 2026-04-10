@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netra - تتبع الشكوى</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .submit-section {
+            padding: 120px 0 60px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .form-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            border-radius: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 1rem;
+            background-color: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            color: var(--text-white);
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            direction: ltr; /* ID format is english */
+            text-align: left;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .tracker-info {
+            display: none;
+            background: rgba(255,255,255,0.02);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .tracker-info.active {
+            display: block;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        .status-Pending { background-color: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.5); }
+        .status-UnderReview { background-color: rgba(33, 150, 243, 0.2); color: #2196f3; border: 1px solid rgba(33, 150, 243, 0.5); }
+        .status-Escalated { background-color: rgba(108, 77, 255, 0.2); color: #6C4DFF; border: 1px solid rgba(108, 77, 255, 0.5); }
+        .status-Completed { background-color: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.5); }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            color: var(--text-gray);
+        }
+        .detail-value {
+            font-weight: bold;
+            text-align: left;
+            direction: ltr;
+        }
+        .error-msg {
+            color: #f44336;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">Netra</a>
+            <nav class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="submit.html">إرسال شكوى</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="submit-section">
+        <div class="container">
+            <div class="form-container fade-up visible">
+                <div class="section-title text-center" style="margin-bottom:2rem;">
+                    <h2>تتبع الشكوى</h2>
+                    <p>أدخل الكود الخاص بشكواك لمعرفة حالتها (مثال: NETRA-2026-000001)</p>
+                </div>
+                
+                <div class="error-msg" id="errorMsg">لم يتم العثور على شكوى بهذا الكود. يرجى التحقق من الكود والمحاولة مرة أخرى.</div>
+                
+                <div class="search-bar">
+                    <input type="text" id="trackInput" placeholder="NETRA-YYYY-XXXX" value="NETRA-">
+                    <button class="btn btn-primary" id="trackBtn">بحث</button>
+                </div>
+
+                <div class="tracker-info" id="trackerInfo">
+                    <div style="text-align: center;">
+                        <span class="status-badge" id="statusBadge">قيد المراجعة</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">رقم التتبع:</span>
+                        <span class="detail-value" id="trackIdDisplay">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">مزود الخدمة:</span>
+                        <span class="detail-value" id="companyDisplay">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">تصنيف الشكوى:</span>
+                        <span class="detail-value" id="typeDisplay">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">تاريخ التسجيل:</span>
+                        <span class="detail-value" id="dateDisplay">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="padding-top:0; border-top:none; text-align:center;">
+                <p>&copy; 2026 Netra Platform.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('trackBtn').addEventListener('click', async () => {
+            const id = document.getElementById('trackInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const trackerInfo = document.getElementById('trackerInfo');
+            
+            errorMsg.style.display = 'none';
+            trackerInfo.classList.remove('active');
+
+            if (!id || id.length < 10) return;
+
+            const btn = document.getElementById('trackBtn');
+            const orgText = btn.innerText;
+            btn.innerText = '...';
+
+            const result = await NetraAPI.trackComplaint(id);
+            btn.innerText = orgText;
+
+            if (result && result.success && result.data) {
+                const complaint = result.data;
+                document.getElementById('trackIdDisplay').innerText = complaint.trackingId;
+                document.getElementById('companyDisplay').innerText = complaint.company;
+                document.getElementById('typeDisplay').innerText = complaint.type;
+                document.getElementById('dateDisplay').innerText = new Date(complaint.createdAt).toLocaleDateString('ar-EG');
+                
+                const badge = document.getElementById('statusBadge');
+                // Maps standard strings if needed
+                let arabicStatus = complaint.status;
+                let cssClass = 'status-Pending';
+                
+                if (complaint.status === 'Pending') { arabicStatus = 'قيد الانتظار'; cssClass = 'status-Pending'; }
+                if (complaint.status === 'Under Review') { arabicStatus = 'قيد المراجعة'; cssClass = 'status-UnderReview'; }
+                if (complaint.status === 'Escalated') { arabicStatus = 'تم التصعيد'; cssClass = 'status-Escalated'; }
+                if (complaint.status === 'Completed') { arabicStatus = 'تم الحل'; cssClass = 'status-Completed'; }
+
+                badge.innerText = arabicStatus;
+                badge.className = `status-badge ${cssClass}`;
+
+                trackerInfo.classList.add('active');
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
