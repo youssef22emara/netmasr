@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetMasr - تنظيم صوت الإنترنت في مصر</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">NetMasr</a>
+            <nav class="nav-links">
+                <a href="#hero">الرئيسية</a>
+                <a href="#submit">إرسال شكوى</a>
+                <a href="#track">تتبع شكواك</a>
+                <a href="#schedule">الجدول والتوجيهات</a>
+            </nav>
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <section id="hero" class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <span class="badge">النظام الموحد لتقديم الشكاوى</span>
+                <h1>NetMasr — تنظيم صوت الإنترنت في مصر</h1>
+                <p>منصة NetMasr تساعدك في تنظيم شكواك حول خدمات الإنترنت وتوجيهها للقنوات الرسمية لإحداث تأثير حقيقي وتغيير فعلي لجودة الخدمة.</p>
+                <div class="hero-actions">
+                    <a href="#submit" class="btn btn-primary btn-lg pulse-effect">ابدأ الآن - سجّل مشكلتك</a>
+                    <a href="#track" class="btn btn-outline btn-lg">تتبع شكواك</a>
+                </div>
+            </div>
+            <div class="hero-stats" id="dashboardStats">
+                <div class="stat-card">
+                    <h3 id="statTotal" class="counter">...</h3>
+                    <p>إجمالي الشكاوى المسجلة</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statRefused" class="counter">...</h3>
+                    <p>حالة رفض لإعطاء رقم شكوى</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Complaint Submission Section -->
+    <section id="submit" class="submit-section section-padding">
+        <div class="container">
+            <div class="form-container fade-up visible">
+                <div class="section-title text-center">
+                    <h2>سجّل مشكلتك (Form)</h2>
+                    <p>يرجى تعبئة النموذج بدقة. سيتم توفير رقم (ID) لمتابعة شكواك ومشاركتها.</p>
+                </div>
+                <form id="complaintForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">الاسم بالكامل (اختياري)</label>
+                            <input type="text" id="fullName" name="fullName" class="form-control" placeholder="أدخل اسمك">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">رقم الهاتف (اختياري)</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="أدخل رقم الهاتف">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="governorate">المحافظة *</label>
+                            <select id="governorate" name="governorate" class="form-control" required>
+                                <option value="" disabled selected>اختر محافظتك</option>
+                                <option value="Cairo">القاهرة</option>
+                                <option value="Giza">الجيزة</option>
+                                <option value="Alexandria">الإسكندرية</option>
+                                <option value="Other">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">شركة الإنترنت *</label>
+                            <select id="company" name="company" class="form-control" required>
+                                <option value="" disabled selected>اختر الشركة</option>
+                                <option value="WE">WE</option>
+                                <option value="Vodafone">Vodafone</option>
+                                <option value="Orange">Orange</option>
+                                <option value="Etisalat">Etisalat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">نوع الشكوى *</label>
+                        <select id="type" name="type" class="form-control" required>
+                            <option value="" disabled selected>اختر نوع المشكلة</option>
+                            <option value="Speed Issue">مشكلة في السرعة</option>
+                            <option value="Data Limit Issue">نفاذ باقة الإنترنت</option>
+                            <option value="Disconnection">انقطاع متكرر للخدمة</option>
+                            <option value="Other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">تفاصيل الشكوى *</label>
+                        <textarea id="description" name="description" class="form-control" rows="4" required placeholder="اشرح مشكلتك بوضوح..."></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="refusedNumber" name="refusedNumber">
+                        <label for="refusedNumber">تم رفض إعطائي رقم شكوى من خدمة العملاء التابعة للشركة</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width:100%">إرسال الشكوى وتوليد الكود</button>
+                    <div id="submitError" class="error-msg" style="margin-top:1rem;"></div>
+                </form>
+
+                <div id="resultBox" class="result-box">
+                    <p>تم استلام طلبك بنجاح. يرجى الاحتفاظ برقم التتبع الخاص بك:</p>
+                    <h3 id="trackingIdDisplay">NETMASR-YYYY-XXXX</h3>
+                    <button class="btn btn-outline" style="margin-top:1rem" onclick="document.getElementById('track').scrollIntoView();">تتبع الكود الآن</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tracking Section -->
+    <section id="track" class="submit-section section-padding bg-alt">
+        <div class="container">
+            <div class="form-container fade-up visible">
+                <div class="section-title text-center" style="margin-bottom:2rem;">
+                    <h2>البحث وتتبع الشكوى</h2>
+                    <p>أدخل الكود الخاص بشكواك (ID) لمعرفة حالتها وموقفها الحالي</p>
+                </div>
+                
+                <div class="error-msg" id="errorMsg">لم يتم العثور على شكوى بهذا الكود. يرجى التحقق من رقم الشكوى والمحاولة مرة أخرى.</div>
+                
+                <div class="search-bar">
+                    <input type="text" id="trackInput" placeholder="NETMASR-YYYY-XXXX" value="NETMASR-">
+                    <button class="btn btn-primary" id="trackBtn">تعقب الشكوى</button>
+                </div>
+
+                <div class="tracker-info" id="trackerInfo">
+                    <div style="text-align: center;">
+                        <span class="status-badge" id="statusBadge">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">رقم التتبع:</span>
+                        <span class="detail-value" id="trackIdDisplayBox">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">مزود الخدمة:</span>
+                        <span class="detail-value" id="companyDisplay">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">تصنيف الشكوى:</span>
+                        <span class="detail-value" id="typeDisplay">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">تاريخ التسجيل:</span>
+                        <span class="detail-value" id="dateDisplay">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schedule and Guidance Section -->
+    <section id="schedule" class="schedule section-padding">
+        <div class="container">
+             <div class="section-title text-center">
+                <h2>جدول التحركات المنظمة والإرشادات</h2>
+                <p>قوتنا في وحدتنا وتوقيتنا. المنصة تجمع البيانات لاستخدامها كدليل قطعي في خطواتنا الجماعية.</p>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item slide-in">
+                    <div class="timeline-time">يوم الجمعة 8 مساءً</div>
+                    <div class="timeline-content">
+                        <h3>إرسال شكاوى جماعية</h3>
+                        <p>توجيه الشكاوى في وقت واحد للقنوات الرسمية والمنصات. (جهاز تنظيم الاتصالات - منظومة الشكاوى الحكومية الموحدة)</p>
+                    </div>
+                </div>
+                <div class="timeline-item slide-in" style="transition-delay: 0.1s;">
+                    <div class="timeline-time">يوم الأحد</div>
+                    <div class="timeline-content">
+                        <h3>متابعة الطلبات وتصعيدها</h3>
+                        <p>تصعيد الشكاوى التي تم تجاوز مدة 48 ساعة دون حلها لجهاز تنظيم الاتصالات بشكل متزامن.</p>
+                    </div>
+                </div>
+                <div class="timeline-item slide-in" style="transition-delay: 0.2s;">
+                    <div class="timeline-time">يوم الثلاثاء</div>
+                    <div class="timeline-content">
+                        <h3>توعية وحملات إلكترونية</h3>
+                        <p>استخدام الهاشتاجات الموحدة على وسائل التواصل الاجتماعي ونشر أرقام الشكاوى (NetMasr) لتسليط الضوء.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guidance-grid" style="margin-top:4rem;">
+                <div class="guidance-card primary-bg">
+                   <h3>نصائح هامة وشروط نجاح الشكوى</h3>
+                   <ol>
+                       <li>لا تقم بإلغاء الطلب الأصلي لدى الشركة مهما كان الضغط.</li>
+                       <li>احتفظ بكل رسائل وأرقام الطلبات.</li>
+                       <li>قدم بيانات الخط الثابت وموديل الراوتر بشكل متطابق دائماً.</li>
+                   </ol>
+                </div>
+           </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="#" class="logo">NetMasr</a>
+                    <p>تنظيم صوت الإنترنت في مصر</p>
+                </div>
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/netraeg/" target="_blank" aria-label="Facebook">Facebook: @netraeg</a>
+                    <a href="https://www.tiktok.com/@netraeg" target="_blank" aria-label="TikTok">TikTok: @netraeg</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 NetMasr Platform. منصة مجتمعية للشباب المصري.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
