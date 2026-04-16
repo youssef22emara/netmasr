@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetMasr | منصة شكاوى الإنترنت الذكية</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" data-target="home">NetMasr <span>| نت مصر</span></a>
+            
+            <div class="hamburger" id="hamburgerMenu">
+                <span></span><span></span><span></span>
+            </div>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="#" class="nav-link active" data-target="home">الرئيسية</a>
+                <a href="#" class="nav-link" data-target="submit">تقديم شكوى</a>
+                <a href="#" class="nav-link" data-target="track">متابعة الشكوى</a>
+                <a href="#" class="nav-link" data-target="statistics">الإحصائيات</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-container">
+
+        <!-- =======================
+             HERO / HOME SECTION 
+             ======================= -->
+        <section id="section-home" class="page-section active-section">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">المنصة الذكية لحماية حقوق مستخدمي الإنترنت في مصر</h1>
+                    <p class="hero-subtitle">بيانات دقيقة عبر آلية تحقق ذكية. تساهم كل شكوى في بناء لوحة المؤشرات الوطنية لحقوق المستهلكين.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary nav-action" data-target="submit">قدم شكوتك الآن 🚀</button>
+                        <button class="btn btn-outline nav-action" data-target="track">المتابعة الآمنة 🔍</button>
+                    </div>
+                </div>
+
+                <div class="schedule-grid">
+                    <div class="schedule-card">
+                        <div class="icon">📅 الجمعة 8 مساءً</div>
+                        <h3>حملة التسجيل</h3>
+                        <p>تسجيل الشكاوى الجماعية وتوثيق المشاكل بالتفصيل.</p>
+                    </div>
+                    <div class="schedule-card">
+                        <div class="icon">🔍 الأحد</div>
+                        <h3>المتابعة</h3>
+                        <p>متابعة أرقام الشكاوى مع الجهاز القومي ونشر التحديثات.</p>
+                    </div>
+                    <div class="schedule-card">
+                        <div class="icon">📢 الثلاثاء</div>
+                        <h3>التوعية</h3>
+                        <p>يوم التوعية الحقوقية بحقوق المستهلك في قطاع الاتصالات.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =======================
+             SUBMIT COMPLAINT SECTION 
+             ======================= -->
+        <section id="section-submit" class="page-section hidden-section">
+            <div class="content-wrapper">
+                <div class="form-card card">
+                    <div class="card-header">
+                        <h2>📝 تقديم شكوى جديدة</h2>
+                        <p>النظام محمي بآلية ذكية لمنع التكرار (رقم واحد كل 7 أيام). يجب تطابق كود المحافظة لإتمام التسجيل.</p>
+                    </div>
+                    
+                    <div id="successMessage" class="alert alert-success hidden">
+                        <h3>✅ تم إرسال شكوتك بنجاح!</h3>
+                        <p class="tracking-pin-text">تأكيد: قم بحفظ رقم الشكوى هذا ورقم خطك المرفق بها للمتابعة: <br><strong id="displayComplaintId" class="tracking-pin mt-15"></strong></p>
+                    </div>
+
+                    <div id="errorMessage" class="alert alert-danger hidden"></div>
+
+                    <form id="complaintForm" class="form-layout">
+                        <div class="form-group">
+                            <label for="name">الاسم (اختياري)</label>
+                            <input type="text" id="name" placeholder="أدخل اسمك">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phoneType">نوع الخط <span class="danger">*</span></label>
+                                <select id="phoneType" required>
+                                    <option value="mobile" selected>موبايل (Mobile يبدأ بـ 01...)</option>
+                                    <option value="landline">أرضي (Landline كود المحافظة...)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phoneNumber">رقم الخط <span class="danger">*</span></label>
+                                <input type="tel" id="phoneNumber" placeholder="مثال: 01xxxxxxxxx أو 02xxxxxxxx" required>
+                                <div id="phoneErrorHelper" class="input-helper danger hidden">الرقم غير متطابق مع المحافظة أو النوع المختار.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="governorate">المحافظة <span class="danger">*</span></label>
+                                <select id="governorate" required>
+                                    <option value="" disabled selected>اختار المحافظة...</option>
+                                    <option value="Cairo">القاهرة</option>
+                                    <option value="Giza">الجيزة</option>
+                                    <option value="Alexandria">الإسكندرية</option>
+                                    <option value="Dakahlia">الدقهلية</option>
+                                    <option value="Red Sea">البحر الأحمر</option>
+                                    <option value="Beheira">البحيرة</option>
+                                    <option value="Fayoum">الفيوم</option>
+                                    <option value="Gharbia">الغربية</option>
+                                    <option value="Ismailia">الإسماعيلية</option>
+                                    <option value="Menofia">المنوفية</option>
+                                    <option value="Minya">المنيا</option>
+                                    <option value="Qalyubia">القليوبية</option>
+                                    <option value="New Valley">الوادي الجديد</option>
+                                    <option value="Suez">السويس</option>
+                                    <option value="Aswan">أسوان</option>
+                                    <option value="Assiut">أسيوط</option>
+                                    <option value="Beni Suef">بني سويف</option>
+                                    <option value="Port Said">بورسعيد</option>
+                                    <option value="Damietta">دمياط</option>
+                                    <option value="Sharkia">الشرقية</option>
+                                    <option value="South Sinai">جنوب سيناء</option>
+                                    <option value="Kafr El Sheikh">كفر الشيخ</option>
+                                    <option value="Matrouh">مطروح</option>
+                                    <option value="Luxor">الأقصر</option>
+                                    <option value="Qena">قنا</option>
+                                    <option value="North Sinai">شمال سيناء</option>
+                                    <option value="Sohag">سوهاج</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company">الشركة المزودة <span class="danger">*</span></label>
+                                <select id="company" required>
+                                    <option value="" disabled selected>اختار الشركة...</option>
+                                    <option value="WE">WE (المصرية للاتصالات)</option>
+                                    <option value="Vodafone">Vodafone</option>
+                                    <option value="Orange">Orange</option>
+                                    <option value="Etisalat">Etisalat</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">نوع المشكلة <span class="danger">*</span></label>
+                            <select id="category" required>
+                                <option value="" disabled selected>اختار نوع المشكلة...</option>
+                                <option value="General Internet Issues">مشاكل عامة في الإنترنت (بطء أو انقطاع)</option>
+                                <option value="Data Limit Issues">مشاكل باقة / نفاذ الجيجات</option>
+                                <option value="Service Market Issues">مشاكل احتكار أو تسعير</option>
+                                <option value="Customer Service Issues">سوء خدمة العملاء</option>
+                                <option value="Other">أخرى</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">وصف المشكلة <span class="danger">*</span></label>
+                            <textarea id="description" rows="5" placeholder="اشرح مشكلتك بوضوح..." required></textarea>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="refusedComplaint">
+                            <label for="refusedComplaint">تم رفض إعطائي رقم شكوى من قِبل الشركة</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">إرسال الشكوى 🚀</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- =======================
+             TRACK COMPLAINT SECTION 
+             ======================= -->
+        <section id="section-track" class="page-section hidden-section">
+            <div class="content-wrapper centered-wrapper">
+                <div class="track-card card">
+                    <div class="card-header text-center">
+                        <h2>🔍 المتابعة الآمنة</h2>
+                        <p>يجب إدخال <strong>كلاهما</strong> للتأكد من هويتك ومنع الوصول العشوائي للبيانات.</p>
+                    </div>
+
+                    <form id="trackForm" class="track-form-secure">
+                        <div class="form-group">
+                            <label>رقم الشكوى (NETMASR)</label>
+                            <input type="text" id="trackInputId" placeholder="مثال: NETMASR-2026-0001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف المرفق بالشكوى</label>
+                            <input type="tel" id="trackInputPhone" placeholder="الرقم المسجل..." required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block mt-15" id="trackBtn">تحقق وابحث</button>
+                    </form>
+
+                    <div id="trackLoading" class="loading-state hidden">
+                        <div class="spinner"></div><p>جاري فك التشفير...</p>
+                    </div>
+
+                    <div id="trackResultContainer" class="hidden">
+                        <div id="trackResultBoxes"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =======================
+             STATISTICS SECTION 
+             ======================= -->
+        <section id="section-statistics" class="page-section hidden-section">
+            <div class="stats-header text-center">
+                <h2>📊 بوابة الإحصائيات</h2>
+                <div class="tabs-container">
+                    <button class="tab-btn active" data-tab="lifetime">إحصائيات المنصة الشاملة</button>
+                    <button class="tab-btn" data-tab="weekly">التحليلات الأسبوعية</button>
+                </div>
+            </div>
+
+            <div id="statsEmptyState" class="empty-state hidden">
+                <div class="empty-icon">📂</div>
+                <h3>اللوحة قيد التحديث</h3>
+                <p>سجل شكاوى ليتم استخراج البيانات.</p>
+            </div>
+
+            <!-- TAB 1: LIFETIME -->
+            <div id="tabContent-lifetime" class="tab-content active-tab">
+                <div class="kpi-grid">
+                    <div class="kpi-card"><span class="kpi-title">إجمالي الشكاوى الكلية</span><strong class="kpi-value" id="kpiTotal">0</strong></div>
+                    <div class="kpi-card"><span class="kpi-title">الشركة الأكثر شكوى</span><strong class="kpi-value" id="kpiActiveCompany">-</strong></div>
+                    <div class="kpi-card"><span class="kpi-title">المشكلة الأكثر شيوعاً</span><strong class="kpi-value" id="kpiCommonIssue">-</strong></div>
+                    <div class="kpi-card"><span class="kpi-title">رفض إعطاء رقم</span><strong class="kpi-value danger" id="kpiRefused">0</strong></div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card card">
+                        <h3>تصنيف الشركات</h3>
+                        <div class="chart-container pie-container"><canvas id="companyChart"></canvas></div>
+                    </div>
+                    <div class="chart-card card">
+                        <h3>الفئات والنسب</h3>
+                        <div class="chart-container bar-container"><canvas id="categoryChart"></canvas></div>
+                        <div id="commonIssuePercentage" class="metric-highlight"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: WEEKLY -->
+            <div id="tabContent-weekly" class="tab-content hidden-tab">
+                <div id="weeklyAnalyticsCard" class="card weekly-card mb-30" style="background: rgba(108, 77, 255, 0.05); border: 1px solid rgba(108, 77, 255, 0.3);">
+                    <h3>📈 أداء الأسبوع الجاري</h3>
+                    <div class="weekly-metrics-grid">
+                        <div class="weekly-stat"><span>هذا الأسبوع</span><strong id="wThisWeek">0</strong></div>
+                        <div class="weekly-stat"><span>الأسبوع الماضي</span><strong id="wLastWeek">0</strong></div>
+                        <div class="weekly-stat"><span>معدل النمو</span><strong id="wGrowth">0%</strong></div>
+                    </div>
+                </div>
+
+                <div class="card table-card mt-30">
+                    <h3>جدول التطور الأسبوعي التاريخي</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الأسبوع (التاريخ)</th>
+                                    <th>إجمالي الشكاوى</th>
+                                    <th>معدل التغيير (نمو)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weeklyTableBody">
+                                <!-- Infinite Logic Mapped Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h2 class="footer-logo">NetMasr <span>| نت مصر</span></h2>
+                <p>منصة ذكية للمطالبة بحقوق مستهلكي الإنترنت في مصر وبناء ضغط ببيانات منتظمة وموثوقة.</p>
+            </div>
+            <div class="footer-social">
+                <h3>تواصل معنا</h3>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/netmasr" target="_blank" class="social-btn facebook">Facebook</a>
+                    <a href="https://www.tiktok.com/@netmasr" target="_blank" class="social-btn tiktok">TikTok</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 NetMasr Platform. All Rights Reserved.</p></div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
