@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://netmasr.casacam.net/sitemap.xml

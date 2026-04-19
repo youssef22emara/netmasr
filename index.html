@@ -3,11 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetMasr | منصة شكاوى الإنترنت الذكية</title>
+    <meta name="robots" content="index, follow">
+
+    <!-- Primary Title & Meta -->
+    <link rel="icon" type="image/png" href="img/NetMasr.jpeg">
+    <title>NetMasr | منصة شكاوى الإنترنت في مصر - سجل شكوتك الآن</title>
+    <meta name="description" content="NetMasr منصة مستقلة وغير حكومية لتوثيق شكاوى الإنترنت في مصر. سجل شكوتك ضد WE وVodafone وOrange وEtisalat. بيانات موثوقة وشفافة لحماية حقوق المستهلك المصري.">
+    <meta name="keywords" content="شكاوى الإنترنت مصر، بطء الإنترنت، WE اتصالات، فودافون مصر، أورنج مصر، اتصالات مصر، حقوق المستهلك، الجهاز القومي للاتصالات، شكوى إنترنت، منصة شكاوى، نت مصر">
+    <link rel="canonical" href="https://netmasr.casacam.net">
     <meta name="google-site-verification" content="google-site-verification=6rND-V6WuexVMpRB6UuiRrdV0Pm11B4UTaAtAeXizrA" />
+    <!-- Open Graph (Facebook, WhatsApp Sharing) -->
+    <meta property="og:title" content="NetMasr | منصة شكاوى الإنترنت في مصر - سجل شكوتك الآن">
+    <meta property="og:description" content="NetMasr منصة مستقلة وغير حكومية لتوثيق شكاوى الإنترنت في مصر. سجل شكوتك ضد WE وVodafone وOrange وEtisalat. بيانات موثوقة وشفافة لحماية حقوق المستهلك المصري.">
+    <meta property="og:url" content="https://netmasr.casacam.net">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NetMasr">
+    <!-- Optional: Insert an Image reference here later -->
+    <!-- <meta property="og:image" content="https://netmasr.casacam.net/preview.jpg"> -->
+
+    <!-- Structured Data (JSON-LD WebSite) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "NetMasr",
+      "url": "https://netmasr.casacam.net",
+      "description": "منصة مستقلة وغير حكومية لتوثيق شكاوى الإنترنت في مصر. سجل شكوتك ضد مزودي الخدمة وتتبعها بشفافية لبناء ضغط مجتمعي منظم وحماية حقوق المستهلكين."
+    }
+    </script>
+    
+    <!-- Dependencies -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B394T3BMG1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-B394T3BMG1');
+    </script>
 </head>
 <body>
 
@@ -45,21 +82,35 @@
                     </div>
                 </div>
 
-                <div class="schedule-grid">
-                    <div class="schedule-card">
-                        <div class="icon">📅 الجمعة 8 مساءً</div>
-                        <h3>حملة التسجيل</h3>
-                        <p>تسجيل الشكاوى الجماعية وتوثيق المشاكل بالتفصيل.</p>
+                <div class="timeline-container">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="date-badge">🚀 الجمعة</div>
+                            <h3>تسجيل الشكوى</h3>
+                            <p>تسجيل الشكوى الأسبوعية الخاصة بك على المنصة.</p>
+                        </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="icon">🔍 الأحد</div>
-                        <h3>المتابعة</h3>
-                        <p>متابعة أرقام الشكاوى مع الجهاز القومي ونشر التحديثات.</p>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="date-badge">📅 الجمعة ➝ الثلاثاء</div>
+                            <h3>التوعية الاجتماعية</h3>
+                            <p>شارك رابط المنصة <a href="https://netmasr.casacam.net" target="_blank" style="color:var(--primary);">netmasr.casacam.net</a> على السوشيال ميديا وادعو الناس للتسجيل.</p>
+                        </div>
                     </div>
-                    <div class="schedule-card">
-                        <div class="icon">📢 الثلاثاء</div>
-                        <h3>التوعية</h3>
-                        <p>يوم التوعية الحقوقية بحقوق المستهلك في قطاع الاتصالات.</p>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="date-badge">💬 الثلاثاء ➝ الجمعة</div>
+                            <h3>بناء ضغط عام</h3>
+                            <p>اكتب كومنت على أي منشور بالنص التالي:</p>
+                            <div class="copy-box" style="margin-top:10px; background:rgba(0,0,0,0.4); padding:15px; border-radius:8px; border-right:3px solid var(--primary); font-family:monospace; line-height:1.8;">
+                                NetMasr | نت مصر<br>
+                                netmasr.casacam.net<br>
+                                لكل مصري يعاني من مشاكل الإنترنت — سجل شكوتك هنا
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -298,7 +349,7 @@
                 <h3>تواصل معنا</h3>
                 <div class="social-links">
                     <a href="https://www.facebook.com/netmasr" target="_blank" class="social-btn facebook">Facebook</a>
-                    <a href="https://www.tiktok.com/@netmasr" target="_blank" class="social-btn tiktok">TikTok</a>
+                    <a href="https://www.tiktok.com/@1netmasr" target="_blank" class="social-btn tiktok">TikTok</a>
                 </div>
             </div>
         </div>
