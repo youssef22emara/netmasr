@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const API_BASE = 'http://localhost:3000/api/complaints';
+    const API_BASE = 'https://netmasrbackend-production.up.railway.app/api/complaints';
     let companyChartInstance = null;
     let categoryChartInstance = null;
 
