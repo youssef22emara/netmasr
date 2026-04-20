@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(targetSec) {
                     targetSec.classList.remove('hidden-section');
                     setTimeout(() => targetSec.classList.add('active-section'), 50);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             }, 300);
 
@@ -112,8 +113,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if(complaintForm) {
+        const phoneStatusHelper = document.getElementById('phoneStatusHelper');
+
         // Run validation dynamically if they change type while inputted
-        phoneInput.addEventListener('input', () => { phoneInput.classList.remove('error-border'); phoneErrorHelper.classList.add('hidden'); });
+        phoneInput.addEventListener('input', () => { 
+            phoneInput.classList.remove('error-border'); 
+            phoneErrorHelper.classList.add('hidden'); 
+            phoneStatusHelper.classList.add('hidden');
+            submitBtn.disabled = false;
+        });
+
+        // Real-time phone check on blur
+        phoneInput.addEventListener('blur', async () => {
+            const phoneVal = phoneInput.value.trim();
+            if (phoneVal.length < 9) return;
+
+            phoneStatusHelper.className = 'input-helper phone-status loading';
+            phoneStatusHelper.innerHTML = '⏳ جاري التحقق من الرقم...';
+            phoneStatusHelper.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/check?phone=${encodeURIComponent(phoneVal)}`);
+                const result = await response.json();
+
+                if (result.available === false) {
+                    phoneStatusHelper.className = 'input-helper phone-status error';
+                    phoneStatusHelper.innerHTML = '⚠️ هذا الرقم سجّل شكوى هذا الأسبوع — يمكنك التسجيل مجدداً يوم الجمعة القادم';
+                    submitBtn.disabled = true;
+                } else if (result.available === true) {
+                    phoneStatusHelper.className = 'input-helper phone-status success';
+                    phoneStatusHelper.innerHTML = '✅ الرقم متاح للتسجيل هذا الأسبوع';
+                    submitBtn.disabled = false;
+                }
+            } catch(e) {
+                console.error('Check phone error', e);
+                phoneStatusHelper.classList.add('hidden');
+            }
+        });
         
         complaintForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -139,33 +175,93 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = 'جاري المعالجة... <span class="spinner" style="width:20px;height:20px;display:inline-block;border-width:2px;vertical-align:middle;margin-right:10px;"></span>';
 
-            try {
-                const response = await fetch(API_BASE, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6LchBcEsAAAAAJsTRpZ76rXHR1IqnbdPu_bhIR0B', {action: 'submit_complaint'})
+                .then(async function(token) {
+                    formData.recaptchaToken = token;
+                    
+                    try {
+                        const response = await fetch(API_BASE, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(formData)
+                        });
 
-                const result = await response.json();
+                        const result = await response.json();
 
-                if (response.ok && result.success) {
-                    document.getElementById('displayComplaintId').textContent = result.data.customId;
+                        if (response.ok && result.success) {
+                            const customId = result.data.customId;
+                    document.getElementById('displayComplaintId').textContent = customId;
+                    
+                    // Generate Arabic Escalation Messages
+                    const name = formData.name || 'غير مذكور';
+                    const govMap = {
+                        'Cairo': 'القاهرة', 'Giza': 'الجيزة', 'Alexandria': 'الإسكندرية', 'Dakahlia': 'الدقهلية', 'Red Sea': 'البحر الأحمر',
+                        'Beheira': 'البحيرة', 'Fayoum': 'الفيوم', 'Gharbia': 'الغربية', 'Ismailia': 'الإسماعيلية', 'Menofia': 'المنوفية',
+                        'Minya': 'المنيا', 'Qalyubia': 'القليوبية', 'New Valley': 'الوادي الجديد', 'Suez': 'السويس', 'Aswan': 'أسوان',
+                        'Assiut': 'أسيوط', 'Beni Suef': 'بني سويف', 'Port Said': 'بورسعيد', 'Damietta': 'دمياط', 'Sharkia': 'الشرقية',
+                        'South Sinai': 'جنوب سيناء', 'Kafr El Sheikh': 'كفر الشيخ', 'Matrouh': 'مطروح', 'Luxor': 'الأقصر', 'Qena': 'قنا',
+                        'North Sinai': 'شمال سيناء', 'Sohag': 'سوهاج'
+                    };
+                    const govArabic = govMap[formData.governorate] || formData.governorate;
+
+                    const catMap = {
+                        'General Internet Issues': 'مشاكل عامة في الإنترنت (بطء أو انقطاع)',
+                        'Data Limit Issues': 'مشاكل باقة / نفاذ الجيجات',
+                        'Service Market Issues': 'مشاكل احتكار أو تسعير',
+                        'Customer Service Issues': 'سوء خدمة العملاء',
+                        'Other': 'أخرى'
+                    };
+                    const catArabic = catMap[formData.category] || formData.category;
+
+                    const msgBody = `السلام عليكم،
+أود تقديم شكوى رسمية بخصوص خدمة الإنترنت.
+
+رقم الشكوى على منصة NetMasr: ${customId}
+رابط المنصة: https://netmasr.casacam.net
+
+بيانات الشكوى:
+- الاسم: ${name}
+- رقم الخط: ${formData.phoneNumber}
+- المحافظة: ${govArabic}
+- الشركة المزودة: ${formData.company}
+- نوع المشكلة: ${catArabic}
+- وصف المشكلة: ${formData.description}
+
+أرجو التكرم بالنظر في هذه الشكوى.`;
+
+                    // Set URLs for buttons
+                    document.getElementById('btnWhatsapp').href = `https://wa.me/201551515505?text=${encodeURIComponent(msgBody)}`;
+                    
+                    const emailSubj = `شكوى خدمة إنترنت – ${formData.company} – ${customId}`;
+                    document.getElementById('btnGmail').href = `https://mail.google.com/mail/?view=cm&to=complaints@tra.gov.eg&su=${encodeURIComponent(emailSubj)}&body=${encodeURIComponent(msgBody)}`;
+
+                    // Handle TRA Button visibility
+                    if (formData.refusedComplaint) {
+                        document.getElementById('btnTraSite').classList.add('hidden');
+                    } else {
+                        document.getElementById('btnTraSite').classList.remove('hidden');
+                    }
+
                     successMessage.classList.remove('hidden');
                     complaintForm.reset();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                    setTimeout(() => successMessage.classList.add('hidden'), 20000);
-                } else {
-                    errorMessage.innerHTML = `<h3>⚠️ تنبيه إداري</h3><p>${result.message || 'حدث خطأ. حاول مجدداً.'}</p>`;
-                    errorMessage.classList.remove('hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            } catch (err) {
-                errorMessage.innerHTML = `<h3>❌ تعذر الاتصال بالخادم</h3><p>تأكد من تشغيل الشبكة و الخادم.</p>`;
-                errorMessage.classList.remove('hidden');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'إرسال الشكوى 🚀';
-            }
+                    // Keep visible for 5 minutes so users have time to use the buttons
+                    setTimeout(() => successMessage.classList.add('hidden'), 300000); 
+                        } else {
+                            errorMessage.innerHTML = `<h3>⚠️ تنبيه إداري</h3><p>${result.message || 'حدث خطأ. حاول مجدداً.'}</p>`;
+                            errorMessage.classList.remove('hidden');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    } catch (err) {
+                        errorMessage.innerHTML = `<h3>❌ تعذر الاتصال بالخادم</h3><p>تأكد من تشغيل الشبكة و الخادم.</p>`;
+                        errorMessage.classList.remove('hidden');
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'إرسال الشكوى 🚀';
+                    }
+                });
+            });
         });
     }
 
@@ -381,6 +477,52 @@ document.addEventListener('DOMContentLoaded', () => {
         if (maxCatCount > 0) {
             const percentage = Math.round((maxCatCount / total) * 100);
             highlightText.innerHTML = `المشكلة الأكبر هي <strong>${catTranslate[maxCat] || maxCat}</strong> وتمثل <strong>${percentage}%</strong> من الشكاوى الموثقة.`;
+        }
+
+        // TAB 3: Governorate Statistics Breakdown
+        const govTransMap = {
+            'Cairo':'القاهرة', 'Giza':'الجيزة', 'Alexandria':'الإسكندرية',
+            'Dakahlia':'الدقهلية', 'Sharkia':'الشرقية', 'Qalyubia':'القليوبية',
+            'Gharbia':'الغربية', 'Beheira':'البحيرة', 'Kafr El Sheikh':'كفر الشيخ',
+            'Damietta':'دمياط', 'Port Said':'بورسعيد', 'Ismailia':'الإسماعيلية',
+            'Suez':'السويس', 'Red Sea':'البحر الأحمر', 'North Sinai':'شمال سيناء',
+            'South Sinai':'جنوب سيناء', 'Luxor':'الأقصر', 'Qena':'قنا',
+            'Aswan':'أسوان', 'Sohag':'سوهاج', 'Assiut':'أسيوط',
+            'Minya':'المنيا', 'Beni Suef':'بني سويف', 'Fayoum':'الفيوم',
+            'Matrouh':'مطروح', 'New Valley':'الوادي الجديد', 'Menofia':'المنوفية'
+        };
+
+        const govCounts = {};
+        complaints.forEach(c => {
+            if(c.governorate) {
+                govCounts[c.governorate] = (govCounts[c.governorate] || 0) + 1;
+            }
+        });
+
+        const govBody = document.getElementById('govTableBody');
+        govBody.innerHTML = '';
+        const govEntries = Object.entries(govCounts).sort((a, b) => b[1] - a[1]);
+        
+        if (govEntries.length === 0) {
+            govBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-weight:bold;">لا توجد بيانات كافية بعد</td></tr>';
+        } else {
+            govEntries.forEach(([gov, count]) => {
+                const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+                const arabicName = govTransMap[gov] || gov;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${arabicName}</strong></td>
+                    <td>${count}</td>
+                    <td>${percentage}%</td>
+                    <td>
+                        <div style="background: rgba(108, 77, 255, 0.15); border-radius: 4px; height: 8px; width: 100%; overflow: hidden; margin-top:5px;">
+                            <div style="background: var(--primary); height: 100%; width: ${percentage}%; border-radius: 4px;"></div>
+                        </div>
+                    </td>
+                `;
+                govBody.appendChild(tr);
+            });
         }
 
         drawCompanyChart(companyCounts);

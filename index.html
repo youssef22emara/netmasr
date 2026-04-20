@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow">
 
+    <!-- Google reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LchBcEsAAAAAJsTRpZ76rXHR1IqnbdPu_bhIR0B"></script>
+
     <!-- Primary Title & Meta -->
     <link rel="icon" type="image/png" href="img/NetMasr.jpeg">
-    <title>NetMasr | منصة شكاوى الإنترنت في مصر - سجل شكوتك الآن</title>
-    <meta name="description" content="NetMasr منصة مستقلة وغير حكومية لتوثيق شكاوى الإنترنت في مصر. سجل شكوتك ضد WE وVodafone وOrange وEtisalat. بيانات موثوقة وشفافة لحماية حقوق المستهلك المصري.">
+    <title>NetMasr | منصة شكاوى الإنترنت في مصر - سجل شكوتك الآن - نت مصر</title>
+    <meta name="description" content="NetMasr | منصة مستقلة تماماً عن الحكومة والشركات — أُسست لتوثيق شكاوى الإنترنت في مصر بشفافية كاملة. سجّل شكوتك ضد WE وVodafone وOrange وEtisalat وأرسلها مباشرة للجهاز القومي لتنظيم الاتصالات. صوتك بيانات — وبياناتك سلاح.">
     <meta name="keywords" content="شكاوى الإنترنت مصر، بطء الإنترنت، WE اتصالات، فودافون مصر، أورنج مصر، اتصالات مصر، حقوق المستهلك، الجهاز القومي للاتصالات، شكوى إنترنت، منصة شكاوى، نت مصر">
     <link rel="canonical" href="https://netmasr.casacam.net">
     <meta name="google-site-verification" content="google-site-verification=6rND-V6WuexVMpRB6UuiRrdV0Pm11B4UTaAtAeXizrA" />
     <!-- Open Graph (Facebook, WhatsApp Sharing) -->
     <meta property="og:title" content="NetMasr | منصة شكاوى الإنترنت في مصر - سجل شكوتك الآن">
-    <meta property="og:description" content="NetMasr منصة مستقلة وغير حكومية لتوثيق شكاوى الإنترنت في مصر. سجل شكوتك ضد WE وVodafone وOrange وEtisalat. بيانات موثوقة وشفافة لحماية حقوق المستهلك المصري.">
+    <meta property="og:description" content="NetMasr | منصة مستقلة تماماً عن الحكومة والشركات — أُسست لتوثيق شكاوى الإنترنت في مصر بشفافية كاملة. سجّل شكوتك ضد WE وVodafone وOrange وEtisalat وأرسلها مباشرة للجهاز القومي لتنظيم الاتصالات. صوتك بيانات — وبياناتك سلاح.">
     <meta property="og:url" content="https://netmasr.casacam.net">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="NetMasr">
@@ -130,6 +133,16 @@
                     <div id="successMessage" class="alert alert-success hidden">
                         <h3>✅ تم إرسال شكوتك بنجاح!</h3>
                         <p class="tracking-pin-text">تأكيد: قم بحفظ رقم الشكوى هذا ورقم خطك المرفق بها للمتابعة: <br><strong id="displayComplaintId" class="tracking-pin mt-15"></strong></p>
+                        <div class="official-badge">✅ جاهز للتوثيق الرسمي لدى الجهاز القومي لتنظيم الاتصالات</div>
+                        
+                        <div class="escalation-actions mt-30">
+                            <h4 class="escalation-title">📬 وصّل شكوتك للجهاز القومي لتنظيم الاتصالات</h4>
+                            <div class="escalation-divider"></div>
+                            
+                            <a href="#" id="btnWhatsapp" target="_blank" class="btn btn-whatsapp btn-block" style="padding: 14px;">أرسل شكوتك عبر واتساب 📲</a>
+                            <a href="#" id="btnGmail" target="_blank" class="btn btn-primary btn-block mt-15" style="padding: 14px;">أرسل شكوتك عبر البريد الإلكتروني 📧</a>
+                            <a href="https://complaints.tra.gov.eg/" id="btnTraSite" target="_blank" class="btn btn-outline-primary btn-block mt-15" style="padding: 14px;">تقديم شكوى رسمية على الموقع الرسمي 🏛️</a>
+                        </div>
                     </div>
 
                     <div id="errorMessage" class="alert alert-danger hidden"></div>
@@ -152,6 +165,7 @@
                             <div class="form-group">
                                 <label for="phoneNumber">رقم الخط <span class="danger">*</span></label>
                                 <input type="tel" id="phoneNumber" placeholder="مثال: 01xxxxxxxxx أو 02xxxxxxxx" required>
+                                <div id="phoneStatusHelper" class="input-helper phone-status hidden"></div>
                                 <div id="phoneErrorHelper" class="input-helper danger hidden">الرقم غير متطابق مع المحافظة أو النوع المختار.</div>
                             </div>
                         </div>
@@ -274,6 +288,7 @@
                 <div class="tabs-container">
                     <button class="tab-btn active" data-tab="lifetime">إحصائيات المنصة الشاملة</button>
                     <button class="tab-btn" data-tab="weekly">التحليلات الأسبوعية</button>
+                    <button class="tab-btn" data-tab="governorates">توزيع المحافظات</button>
                 </div>
             </div>
 
@@ -337,6 +352,177 @@
             
         </section>
 
+        <!-- TAB 3: GOVERNORATES (Rendered inside stats section) -->
+            <div id="tabContent-governorates" class="tab-content hidden-tab">
+                <div class="card table-card mt-30">
+                    <h3>توزيع الشكاوى حسب المحافظات</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>المحافظة</th>
+                                    <th>عدد الشكاوى</th>
+                                    <th>النسبة المئوية %</th>
+                                    <th style="min-width: 150px;">توزيع بصري</th>
+                                </tr>
+                            </thead>
+                            <tbody id="govTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- =======================
+             PRIVACY POLICY SECTION 
+             ======================= -->
+        <section id="section-privacy" class="page-section hidden-section">
+            <div class="content-wrapper">
+                <div class="card policy-card">
+                    <div class="card-header text-center">
+                        <h2>سياسة الخصوصية – NetMasr</h2>
+                    </div>
+                    <div class="policy-content">
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">1</span> البيانات التي نقوم بجمعها:</h3>
+                            <ul>
+                                <li>رقم الهاتف أو الرقم الأرضي</li>
+                                <li>المحافظة</li>
+                                <li>بيانات الشكوى (نوع المشكلة ووصفها)</li>
+                                <li>أي بيانات اختيارية (مثل الاسم)</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">2</span> كيفية استخدام البيانات:</h3>
+                            <ul>
+                                <li>تسجيل وتنظيم الشكاوى</li>
+                                <li>عرض إحصائيات عامة ومجمعة</li>
+                                <li>تحسين جودة المنصة</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">3</span> حماية البيانات:</h3>
+                            <ul>
+                                <li>لا نقوم ببيع أو مشاركة بيانات المستخدمين مع أي طرف ثالث</li>
+                                <li>يتم استخدام البيانات داخل المنصة فقط</li>
+                                <li>نحرص على تأمين البيانات بوسائل تقنية مناسبة</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">4</span> سرية المعلومات:</h3>
+                            <ul>
+                                <li>لن يتم نشر رقم الهاتف أو البيانات الشخصية بشكل علني</li>
+                                <li>الإحصائيات المعروضة تكون بدون بيانات شخصية</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">5</span> استخدام البيانات في التحليل:</h3>
+                            <ul>
+                                <li>أكثر المشكلات انتشاراً</li>
+                                <li>توزيع الشكاوى حسب المحافظات أو الشركات</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">6</span> موافقة المستخدم:</h3>
+                            <p>باستخدامك للمنصة، فإنك توافق على جمع واستخدام البيانات وفقاً لهذه السياسة</p>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">7</span> التعديلات:</h3>
+                            <p>قد نقوم بتحديث سياسة الخصوصية من وقت لآخر</p>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">8</span> التواصل:</h3>
+                            <p>يمكن التواصل من خلال صفحاتنا الرسمية</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-30">
+                        <p style="color:var(--text-muted); font-size: 0.9rem;">NetMasr منصة مستقلة غير تابعة لأي جهة حكومية</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =======================
+             TERMS OF USE SECTION 
+             ======================= -->
+        <section id="section-terms" class="page-section hidden-section">
+            <div class="content-wrapper">
+                <div class="card policy-card">
+                    <div class="card-header text-center">
+                        <h2>شروط الاستخدام – NetMasr</h2>
+                    </div>
+                    <div class="policy-content">
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">1</span> طبيعة المنصة:</h3>
+                            <ul>
+                                <li>NetMasr منصة تقنية مستقلة</li>
+                                <li>ليست جهة حكومية أو رسمية</li>
+                                <li>لا تقدم حلول مباشرة، بل تنظم الشكاوى وتعرضها</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">2</span> مسؤولية المستخدم:</h3>
+                            <ul>
+                                <li>يجب إدخال بيانات صحيحة ودقيقة</li>
+                                <li>يُمنع إدخال بيانات مزيفة أو مضللة</li>
+                                <li>يتحمل المستخدم مسؤولية محتوى الشكوى</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">3</span> الاستخدام المسموح:</h3>
+                            <ul>
+                                <li>تقديم شكاوى حقيقية فقط</li>
+                                <li>متابعة الشكاوى الخاصة بك</li>
+                                <li>الاطلاع على الإحصائيات العامة</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">4</span> الاستخدام غير المسموح:</h3>
+                            <ul>
+                                <li>إساءة استخدام المنصة أو التلاعب بالنظام</li>
+                                <li>تقديم شكاوى وهمية أو متكررة بشكل غير مشروع</li>
+                                <li>استخدام المنصة في أي نشاط مخالف للقانون</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">5</span> حدود المسؤولية:</h3>
+                            <ul>
+                                <li>المنصة لا تضمن حل المشكلات المقدمة</li>
+                                <li>دور المنصة يقتصر على التنظيم والعرض فقط</li>
+                            </ul>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">6</span> إيقاف الاستخدام:</h3>
+                            <p>يحق لإدارة المنصة إيقاف أو حذف أي محتوى مخالف للشروط</p>
+                        </div>
+                        <div class="policy-divider"></div>
+                        <div class="policy-item">
+                            <h3 class="policy-title"><span class="badge">7</span> القبول:</h3>
+                            <p>باستخدامك للمنصة، فإنك توافق على جميع الشروط المذكورة</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-30">
+                        <p style="color:var(--text-muted); font-size: 0.9rem;">NetMasr تهدف إلى تحويل الشكاوى إلى بيانات منظمة</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer class="footer">
@@ -353,7 +539,13 @@
                 </div>
             </div>
         </div>
-        <div class="footer-bottom"><p>&copy; 2026 NetMasr Platform. All Rights Reserved.</p></div>
+        <div class="footer-bottom">
+            <div class="footer-links" style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px;">
+                <a href="#" class="nav-link" data-target="privacy" style="font-size: 0.95rem;">سياسة الخصوصية</a>
+                <a href="#" class="nav-link" data-target="terms" style="font-size: 0.95rem;">شروط الاستخدام</a>
+            </div>
+            <p>&copy; 2026 NetMasr Platform. All Rights Reserved.</p>
+        </div>
     </footer>
 
     <script src="js/script.js"></script>

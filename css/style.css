@@ -66,7 +66,10 @@ label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.95rem
 input[type="text"], input[type="tel"], select, textarea { width: 100%; padding: 14px 16px; background-color: rgba(0, 0, 0, 0.3); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-light); font-family: inherit; font-size: 1rem; transition: all 0.3s ease; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108, 77, 255, 0.2); }
 input.error-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.2) !important; }
-.input-helper { font-size: 0.85rem; margin-top: 5px; }
+.input-helper { font-size: 0.85rem; margin-top: 5px; transition: opacity 0.3s ease; }
+.phone-status.loading { color: var(--text-muted); }
+.phone-status.success { color: var(--success); }
+.phone-status.error { color: var(--danger); font-weight: bold; }
 
 .checkbox-group { display: flex; align-items: center; gap: 12px; margin: 25px 0; cursor: pointer; }
 .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); }
@@ -78,6 +81,16 @@ input.error-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3
 .alert-success h3 { color: var(--success); margin-bottom: 10px; }
 .alert-danger { background: rgba(255, 77, 77, 0.1); border: 1px solid var(--danger); color: #FFF; }
 .tracking-pin { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; user-select: all; font-family: monospace; font-size: 1.2rem; color: #FFF; letter-spacing: 1px; display:inline-block;}
+.official-badge { background: rgba(30, 204, 163, 0.15); border: 1px solid #1ECCA3; color: #1ECCA3; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; font-weight: bold; display: inline-block; margin-top: 10px; }
+
+/* ESCALATION ACTIONS */
+.escalation-actions { background: rgba(0,0,0,0.15); padding: 20px; border-radius: 12px; border: 1px dashed var(--success); }
+.escalation-title { font-size: 1.1rem; color: #FFF; text-align: center; margin-bottom: 15px; }
+.escalation-divider { height: 1px; background: var(--card-border); margin-bottom: 20px; opacity: 0.5; }
+.btn-whatsapp { background-color: #25D366; color: #FFF; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+.btn-whatsapp:hover { background-color: #128C7E; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
+.btn-outline-primary { background-color: transparent; color: var(--text-light); border: 2px solid var(--primary); }
+.btn-outline-primary:hover { background-color: rgba(108, 77, 255, 0.1); border-color: var(--primary); }
 
 /* TRACK COMPLAINT SECURE FORMAT */
 .centered-wrapper { max-width: 600px; }
@@ -119,7 +132,8 @@ input.error-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3
 .weekly-stat strong { color: var(--primary); font-size: 2rem; font-weight: 800; }
 
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-.chart-container { position: relative; width: 100%; margin-top: 20px; height: 300px; display:flex; justify-content:center;}
+.chart-card { min-width: 0; max-width: 100%; overflow: hidden; }
+.chart-container { position: relative; width: 100%; max-width: 100%; margin-top: 20px; height: 300px; display:flex; justify-content:center; overflow: hidden; }
 .metric-highlight { text-align: center; margin-top: 25px; padding: 15px; background: rgba(108, 77, 255, 0.1); border-radius: 8px; color: #FFF; font-size: 1.1rem; font-weight: 700; }
 
 .empty-state { text-align: center; padding: 50px 20px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--card-border); margin: 0 auto; max-width:600px;}
@@ -141,6 +155,17 @@ input.error-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3
 .social-btn { padding: 8px 16px; border-radius: 6px; color: #FFF; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
 .facebook { background: #1877F2; } .tiktok { background: #010101; border: 1px solid #333; }
 .footer-bottom { text-align: center; border-top: 1px solid var(--card-border); padding-top: 20px; font-size: 0.85rem; color: var(--text-muted); }
+
+/* POLICY & TERMS */
+.policy-card { padding: 40px; }
+.policy-item { margin-bottom: 20px; }
+.policy-title { color: var(--primary); font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+.badge { background: rgba(108, 77, 255, 0.2); color: #C4B5FD; padding: 4px 12px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; border: 1px solid rgba(108, 77, 255, 0.4); }
+.policy-item ul { list-style-type: none; padding-right: 15px; }
+.policy-item ul li { position: relative; margin-bottom: 10px; color: var(--text-light); }
+.policy-item ul li::before { content: '•'; color: var(--primary); font-size: 1.5rem; position: absolute; right: -20px; top: -5px; }
+.policy-item p { color: var(--text-light); }
+.policy-divider { height: 1px; background: var(--card-border); margin: 25px 0; border: none; opacity: 0.3; }
 
 /* RESPONSIVE */
 @media (max-width: 992px) {
@@ -168,9 +193,23 @@ input.error-border { border-color: var(--danger) !important; box-shadow: 0 0 0 3
     .charts-grid { grid-template-columns: 1fr; }
     .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     
+    /* Stats Optimizations */
+    .tabs-container { flex-wrap: wrap; gap: 10px; }
+    .tab-btn { flex: 1; min-width: 150px; text-align: center; }
+    
     /* Vertical Timeline Override */
     .timeline-container { flex-direction: column; padding-right: 35px; margin-top: 20px; position: relative; }
     .timeline-container::before { width: 2px; height: 100%; left: auto; right: 10px; top: 10px; }
     .timeline-item { padding: 20px; }
     .timeline-dot { top: 25px; right: -36px; }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .tabs-container { flex-direction: column; width: 100%; }
+    .tab-btn { width: 100%; padding: 10px; font-size: 0.95rem; }
+    .kpi-value { font-size: 1.5rem; word-break: break-word; }
+    .footer-links { flex-direction: column; gap: 10px !important; align-items: center; }
+    .card { padding: 15px; }
+    .chart-container { height: 250px; }
 }
