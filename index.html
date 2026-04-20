@@ -65,6 +65,7 @@
                 <a href="#" class="nav-link" data-target="submit">تقديم شكوى</a>
                 <a href="#" class="nav-link" data-target="track">متابعة الشكوى</a>
                 <a href="#" class="nav-link" data-target="statistics">الإحصائيات</a>
+                <a href="#" class="nav-link" data-target="comparison">مقارنة الدول</a>
             </nav>
         </div>
     </header>
@@ -374,6 +375,135 @@
                 </div>
             </div>
             
+        </section>
+
+        <!-- =======================
+             COMPARISON SECTION 
+             ======================= -->
+        <section id="section-comparison" class="page-section hidden-section" style="background-color: var(--bg-dark, #0B0F1A); padding-top: 2rem;">
+            <div class="content-wrapper" style="max-width: 1200px;">
+                <header class="comparison-header text-center mb-30">
+                    <h2 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #fff, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">مقارنة الإنترنت في الدول العربية</h2>
+                    <p style="color: #94A3B8; font-size: 1.1rem; margin-top: 10px;">قارن بين جودة الإنترنت في مصر وباقي الدول العربية باستخدام بيانات موثوقة</p>
+                </header>
+
+                <section class="controls-section text-center mb-30" style="display: flex; justify-content: center;">
+                    <select id="country-select" class="country-selector" aria-label="اختر دولة للمقارنة" style="padding: 10px 20px; border-radius: 8px; border: 1px solid #2E364F; background: #151A2C; color: #fff; width: 100%; max-width: 300px; font-family: 'Tajawal'; font-size: 1.1rem; cursor: pointer;">
+                        <option value="" disabled selected>جاري تحميل البيانات...</option>
+                    </select>
+                </section>
+
+                <section id="auto-insight" class="auto-insight text-center mb-30" style="display: none; background: linear-gradient(135deg, rgba(108, 77, 255, 0.2), rgba(108, 77, 255, 0.05)); border: 1px solid #6C4DFF; border-radius: 12px; padding: 1.5rem;">
+                    <p id="insight-text" style="font-size: 1.2rem; font-weight: 500;"></p>
+                </section>
+
+                <section class="comparison-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                    <!-- Egypt Card -->
+                    <div class="country-card card text-center" id="card-egypt" style="background: #151A2C; border: 1px solid #2E364F; padding: 2rem; border-radius: 16px;">
+                        <div class="country-banner" style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+                            <img id="flag-egypt" src="" alt="علم" style="display:none; width: 48px; border-radius: 4px;">
+                            <h3 id="name-egypt" style="font-size: 1.8rem; margin:0;">مصر</h3>
+                        </div>
+                        <div class="metrics-list" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">متوسط السرعة الحقيقية (Avg Mbps)</div>
+                                <div id="avg-speed-egypt" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">أقصى سرعة متاحة (Max Mbps)</div>
+                                <div id="max-speed-egypt" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">نوع الإنترنت</div>
+                                <div id="type-egypt" style="margin-top: 5px;"><span style="background:#475569; padding: 4px 10px; border-radius: 4px; font-weight:bold;">N/A</span></div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">السعر الشهري (USD)</div>
+                                <div id="price-egypt" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">دخل الفرد المقدر (Min Salary USD)</div>
+                                <div id="salary-egypt" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(108, 77, 255, 0.15); border: 1px solid #6C4DFF; padding: 1rem; border-radius: 8px;">
+                                <div style="color: #fff; font-size: 0.9rem;">مؤشر القدرة الشرائية (تكلفة الإنترنت من الدخل)</div>
+                                <div id="affordability-egypt" style="font-size: 1.5rem; font-weight: 700; color: #22C55E;">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compare Card -->
+                    <div class="country-card card text-center" id="card-compare" style="background: #151A2C; border: 1px solid #2E364F; padding: 2rem; border-radius: 16px;">
+                        <div class="country-banner" style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+                            <img id="flag-compare" src="" alt="علم" style="display:none; width: 48px; border-radius: 4px;">
+                            <h3 id="name-compare" style="font-size: 1.8rem; margin:0;">اختر دولة</h3>
+                        </div>
+                        <div class="metrics-list" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">متوسط السرعة الحقيقية (Avg Mbps)</div>
+                                <div id="avg-speed-compare" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">أقصى سرعة متاحة (Max Mbps)</div>
+                                <div id="max-speed-compare" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">نوع الإنترنت</div>
+                                <div id="type-compare" style="margin-top: 5px;"><span style="background:#475569; padding: 4px 10px; border-radius: 4px; font-weight:bold;">N/A</span></div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">السعر الشهري (USD)</div>
+                                <div id="price-compare" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                <div style="color: #94A3B8; font-size: 0.9rem;">دخل الفرد المقدر (Min Salary USD)</div>
+                                <div id="salary-compare" style="font-size: 1.5rem; font-weight: 700;">N/A</div>
+                            </div>
+                            <div class="metric-item" style="background: rgba(108, 77, 255, 0.15); border: 1px solid #6C4DFF; padding: 1rem; border-radius: 8px;">
+                                <div style="color: #fff; font-size: 0.9rem;">مؤشر القدرة الشرائية (تكلفة الإنترنت من الدخل)</div>
+                                <div id="affordability-compare" style="font-size: 1.5rem; font-weight: 700; color: #22C55E;">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="charts-section" style="display: none; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 4rem;" id="charts-wrapper">
+                    <div class="chart-container card" style="background: #151A2C; border: 1px solid #2E364F; padding: 1.5rem; display: flex; justify-content: center;">
+                        <canvas id="compSpeedChart" style="max-height: 300px; width: 100%;"></canvas>
+                    </div>
+                    <div class="chart-container card" style="background: #151A2C; border: 1px solid #2E364F; padding: 1.5rem; display: flex; justify-content: center;">
+                        <canvas id="compPriceChart" style="max-height: 300px; width: 100%;"></canvas>
+                    </div>
+                </section>
+
+                <section class="table-section mb-30" id="table-wrapper" style="display: none; overflow-x: auto;">
+                    <h3 class="mb-15 text-center">البيانات الكاملة للدول العربية</h3>
+                    <div class="table-responsive">
+                        <table class="data-table" style="background: #151A2C; border-radius: 12px; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.05); color: #94A3B8; text-align: right; border-bottom: 1px solid #2E364F;">
+                                    <th style="padding: 1rem;">الدولة</th>
+                                    <th style="padding: 1rem;">متوسط السرعة (Avg)</th>
+                                    <th style="padding: 1rem;">أقصى سرعة (Max)</th>
+                                    <th style="padding: 1rem;">نوع الإنترنت</th>
+                                    <th style="padding: 1rem;">السعر (USD)</th>
+                                    <th style="padding: 1rem;">أدنى دخل (USD)</th>
+                                    <th style="padding: 1rem;">مؤشر القدرة الشرائية (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comp-table-body">
+                                <!-- JS Populates -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div class="warnings text-center mt-30" style="color: #94A3B8; font-size: 0.9rem; border-top: 1px solid #2E364F; padding-top: 1rem;">
+                    <p class="mb-10">البيانات تعتمد على تقارير عالمية وتقديرات اقتصادية لغرض المقارنة. يتم احتساب المؤشر عبر: <code>(السعر الإجمالي / الحد الأدنى للدخل) * 100</code></p>
+                    <p class="danger mb-10" style="color: #ef4444;">ملاحظة هامة: الدخل المذكور هو للأغراض التقديرية (Estimated أو Official) ولا يمثل دراسة اقتصادية إلزامية بل هو بناءً على مصادر عامة مثل WorldBank و تقارير الإحصاء.</p>
+                    <p>آخر تحديث: <span id="comp-last-update-date">-</span></p>
+                </div>
+            </div>
         </section>
 
         <!-- =======================

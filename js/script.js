@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
 
             if(targetId === 'statistics') loadStatistics();
+            if(targetId === 'comparison') loadComparison();
         });
     });
 
@@ -558,6 +559,287 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'bar',
             data: { labels: labels, datasets: [{ label: 'عدد الشكاوى', data: data, backgroundColor: chartColors.defaultBg, borderColor: chartColors.defaultBorder, borderWidth: 1, borderRadius: 4 }] },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: '#A0AABF' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: '#A0AABF', font: { family: 'Tajawal' } }, grid: { display: false } } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+    // ==========================================
+    // 5. COMPARISON MODULE (HYBRID DATA)
+    // ==========================================
+    let compGlobalDataset = [];
+    let compCharts = { speed: null, price: null };
+    let compIsLoaded = false;
+
+    // Realistic Baseline Dataset (2025-2026 Approx.)
+    const staticBaselineData = [
+        { id: "EGY", name: "مصر", avg_speed_mbps: 22, max_speed_mbps: 100, avg_price_usd: 12, min_salary_usd: 120, salary_type: "Official", internet_type: "Limited" },
+        { id: "SAU", name: "السعودية", avg_speed_mbps: 110, max_speed_mbps: 1000, avg_price_usd: 35, min_salary_usd: 1060, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "ARE", name: "الإمارات", avg_speed_mbps: 260, max_speed_mbps: 1000, avg_price_usd: 80, min_salary_usd: 1500, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "QAT", name: "قطر", avg_speed_mbps: 240, max_speed_mbps: 1000, avg_price_usd: 70, min_salary_usd: 1400, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "KWT", name: "الكويت", avg_speed_mbps: 160, max_speed_mbps: 500, avg_price_usd: 40, min_salary_usd: 1050, salary_type: "Official", internet_type: "Unlimited" },
+        { id: "BHR", name: "البحرين", avg_speed_mbps: 110, max_speed_mbps: 500, avg_price_usd: 30, min_salary_usd: 800, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "OMN", name: "عُمان", avg_speed_mbps: 85, max_speed_mbps: 500, avg_price_usd: 45, min_salary_usd: 845, salary_type: "Official", internet_type: "Unlimited" },
+        { id: "JOR", name: "الأردن", avg_speed_mbps: 75, max_speed_mbps: 500, avg_price_usd: 25, min_salary_usd: 365, salary_type: "Official", internet_type: "Unlimited" },
+        { id: "MAR", name: "المغرب", avg_speed_mbps: 35, max_speed_mbps: 200, avg_price_usd: 20, min_salary_usd: 300, salary_type: "Official", internet_type: "Unlimited" },
+        { id: "DZA", name: "الجزائر", avg_speed_mbps: 20, max_speed_mbps: 100, avg_price_usd: 15, min_salary_usd: 150, salary_type: "Official", internet_type: "Unlimited" },
+        { id: "TUN", name: "تونس", avg_speed_mbps: 25, max_speed_mbps: 100, avg_price_usd: 14, min_salary_usd: 145, salary_type: "Official", internet_type: "Unlimited" },
+        { id: "IRQ", name: "العراق", avg_speed_mbps: 45, max_speed_mbps: 150, avg_price_usd: 35, min_salary_usd: 250, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "LBN", name: "لبنان", avg_speed_mbps: 15, max_speed_mbps: 50, avg_price_usd: 25, min_salary_usd: 100, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "YEM", name: "اليمن", avg_speed_mbps: 3, max_speed_mbps: 16, avg_price_usd: 15, min_salary_usd: 50, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "SYR", name: "سوريا", avg_speed_mbps: 5, max_speed_mbps: 24, avg_price_usd: 10, min_salary_usd: 20, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "SDN", name: "السودان", avg_speed_mbps: 8, max_speed_mbps: 30, avg_price_usd: 20, min_salary_usd: 50, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "LBY", name: "ليبيا", avg_speed_mbps: 15, max_speed_mbps: 50, avg_price_usd: 20, min_salary_usd: 250, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "PSE", name: "فلسطين", avg_speed_mbps: 10, max_speed_mbps: 50, avg_price_usd: 30, min_salary_usd: 400, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "MRT", name: "موريتانيا", avg_speed_mbps: 10, max_speed_mbps: 50, avg_price_usd: 35, min_salary_usd: 150, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "SOM", name: "الصومال", avg_speed_mbps: 5, max_speed_mbps: 20, avg_price_usd: 40, min_salary_usd: 100, salary_type: "Estimated", internet_type: "Limited" },
+        { id: "DJI", name: "جيبوتي", avg_speed_mbps: 12, max_speed_mbps: 50, avg_price_usd: 60, min_salary_usd: 150, salary_type: "Estimated", internet_type: "Unlimited" },
+        { id: "COM", name: "جزر القمر", avg_speed_mbps: 5, max_speed_mbps: 20, avg_price_usd: 50, min_salary_usd: 100, salary_type: "Estimated", internet_type: "Limited" }
+    ];
+
+    async function loadComparison() {
+        if(compIsLoaded) return; // Prevent double fetching
+        
+        // Caching Logic
+        const CACHE_KEY = "netmasr_comp_data_v4";
+        const cachedStr = localStorage.getItem(CACHE_KEY);
+        let parsedCache = null;
+        
+        if (cachedStr) {
+            try {
+                parsedCache = JSON.parse(cachedStr);
+                const now = Date.now();
+                // Check if older than 24h (24 * 60 * 60 * 1000)
+                if (now - parsedCache.timestamp < 86400000) {
+                    compGlobalDataset = parsedCache.data;
+                    document.getElementById('comp-last-update-date').textContent = new Date(parsedCache.timestamp).toLocaleDateString('ar-EG');
+                    initComparisonUI();
+                    compIsLoaded = true;
+                    return;
+                }
+            } catch(e) { console.error("Cache parsing error", e); }
+        }
+
+        // Fetch new data (Hybrid merge)
+        try {
+            const [restRes, wbRes] = await Promise.allSettled([
+                fetch('https://restcountries.com/v3.1/lang/arabic'),
+                fetch('https://api.worldbank.org/v2/country/all/indicator/IT.NET.USER.ZS?format=json&date=2022&per_page=1000')
+            ]);
+
+            const restData = restRes.status === 'fulfilled' ? await restRes.value.json() : [];
+            const wbDataRaw = wbRes.status === 'fulfilled' ? await wbRes.value.json() : [];
+            const wbMap = {};
+
+            if (wbDataRaw && wbDataRaw[1]) {
+                wbDataRaw[1].forEach(item => {
+                    if (item.countryiso3code && item.value !== null) {
+                        wbMap[item.countryiso3code] = item.value;
+                    }
+                });
+            }
+
+            // Map baseline to final
+            let mergedData = staticBaselineData.map(base => {
+                let countryMeta = restData.find(c => c.cca3 === base.id) || {};
+                let flagUrl = countryMeta.flags ? (countryMeta.flags.svg || countryMeta.flags.png) : "";
+                
+                return {
+                    id: base.id,
+                    name: base.name,
+                    avg_speed_mbps: base.avg_speed_mbps,
+                    max_speed_mbps: base.max_speed_mbps,
+                    avg_price_usd: base.avg_price_usd,
+                    min_salary_usd: base.min_salary_usd,
+                    salary_type: base.salary_type,
+                    internet_type: base.internet_type,
+                    affordability_percent: base.min_salary_usd ? ((base.avg_price_usd / base.min_salary_usd) * 100).toFixed(1) : null,
+                    flag: flagUrl,
+                    usage_percent: wbMap[base.id] || null
+                };
+            });
+
+            compGlobalDataset = mergedData;
+            
+            // Save to Cache
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                timestamp: Date.now(),
+                data: compGlobalDataset
+            }));
+            
+            document.getElementById('comp-last-update-date').textContent = new Date().toLocaleDateString('ar-EG');
+            initComparisonUI();
+            compIsLoaded = true;
+            
+        } catch(err) {
+            console.error("Comparison Hybrid Fetch Error:", err);
+            // Complete Fallback
+            compGlobalDataset = staticBaselineData;
+            initComparisonUI();
+            compIsLoaded = true;
+        }
+    }
+
+    function initComparisonUI() {
+        const selector = document.getElementById('country-select');
+        selector.innerHTML = '';
+        
+        compGlobalDataset.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+        
+        compGlobalDataset.forEach(c => {
+            if (c.id !== "EGY") {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                selector.appendChild(opt);
+            }
+        });
+
+        const defaultCompare = compGlobalDataset.find(c => c.id === 'SAU') || compGlobalDataset.find(c => c.id !== 'EGY');
+        if(defaultCompare) selector.value = defaultCompare.id;
+
+        selector.addEventListener('change', (e) => compUpdateUI(e.target.value));
+
+        document.getElementById('charts-wrapper').style.display = 'grid';
+        document.getElementById('table-wrapper').style.display = 'block';
+        compUpdateUI(selector.value);
+        compRenderTable();
+    }
+
+    function compUpdateUI(compareId) {
+        const egyptData = compGlobalDataset.find(c => c.id === 'EGY');
+        const compareData = compGlobalDataset.find(c => c.id === compareId);
+        if(!egyptData || !compareData) return;
+
+        compFillCard('egypt', egyptData);
+        compFillCard('compare', compareData);
+        compGenerateInsight(egyptData, compareData);
+        compUpdateCharts(egyptData, compareData);
+    }
+
+    function compFillCard(prefix, data) {
+        document.getElementById(`name-${prefix}`).textContent = data.name;
+        const flagEl = document.getElementById(`flag-${prefix}`);
+        if(data.flag) {
+            flagEl.src = data.flag;
+            flagEl.style.display = 'block';
+        } else {
+            flagEl.style.display = 'none';
+        }
+        document.getElementById(`avg-speed-${prefix}`).textContent = data.avg_speed_mbps || 'N/A';
+        document.getElementById(`max-speed-${prefix}`).textContent = data.max_speed_mbps || 'N/A';
+        document.getElementById(`price-${prefix}`).textContent = data.avg_price_usd ? `${data.avg_price_usd}` : 'N/A';
+        document.getElementById(`salary-${prefix}`).innerHTML = data.min_salary_usd ? `${data.min_salary_usd} <span style="font-size: 0.8rem; color:#94A3B8;">(${data.salary_type || 'مقدر'})</span>` : 'N/A';
+        document.getElementById(`affordability-${prefix}`).textContent = data.affordability_percent ? `${data.affordability_percent}%` : 'N/A';
+
+        // Internet Type Logic
+        const typeEl = document.getElementById(`type-${prefix}`);
+        if(typeEl && data.internet_type) {
+            const isUnlimited = data.internet_type === "Unlimited";
+            const badgeColor = isUnlimited ? "#22C55E" : "#EF4444";
+            const badgeText = isUnlimited ? "غير محدود" : "باقات محدودة";
+            typeEl.innerHTML = `<span style="background:${badgeColor}20; color:${badgeColor}; padding: 4px 10px; border-radius: 4px; font-weight:bold; border: 1px solid ${badgeColor}50;">${badgeText}</span>`;
+        }
+    }
+
+    function compGenerateInsight(egypt, compare) {
+        const insightSection = document.getElementById('auto-insight');
+        const insightText = document.getElementById('insight-text');
+        
+        let sentence = "";
+        
+        if(egypt.affordability_percent && compare.affordability_percent) {
+            let egAfford = parseFloat(egypt.affordability_percent);
+            let compAfford = parseFloat(compare.affordability_percent);
+            
+            if(compAfford < egAfford) {
+                sentence = `رغم أن السرعة في <strong>${compare.name}</strong> أعلى، إلا أن تكلفة الإنترنت كنسبة من الدخل في <strong>${compare.name}</strong> (${compAfford}%) أقل بكثير و أخف عبئاً مقارنة بـ <strong>مصر</strong> (${egAfford}%).`;
+            } else {
+                sentence = `مؤشر القدرة الشرائية يوضح أن العبء المالي للإنترنت في <strong>مصر</strong> (${egAfford}%) أفضل من <strong>${compare.name}</strong> (${compAfford}%).`;
+            }
+
+            if (egypt.internet_type === "Limited" && compare.internet_type === "Unlimited") {
+                sentence += `<br><br><span style="color:#22C55E;">💡 ملاحظة هامة: الإنترنت في ${compare.name} غير محدود (Unlimited)، بينما يعتمد الإنترنت في مصر على الكوتة والباقات المحدودة!</span>`;
+            } else if (egypt.internet_type === "Unlimited" && compare.internet_type === "Limited") {
+                sentence += `<br><br><span style="color:#EF4444;">💡 ملاحظة: الإنترنت في مصر غير محدود، بينما يعتمد في ${compare.name} على الباقات المحدودة!</span>`;
+            }
+        } else {
+            sentence = `البيانات المعروضة تعتمد على تقارير عالمية وتقديرات اقتصادية لغرض المقارنة وتحديد العبء الحقيقي.`;
+        }
+
+        insightText.innerHTML = sentence;
+        insightSection.style.display = 'block';
+    }
+
+    function compUpdateCharts(egypt, compare) {
+        const ctxSpeed = document.getElementById('compSpeedChart').getContext('2d');
+        const ctxPrice = document.getElementById('compPriceChart').getContext('2d');
+
+        const labels = [egypt.name, compare.name];
+        if (compCharts.speed) compCharts.speed.destroy();
+        compCharts.speed = new Chart(ctxSpeed, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'متوسط السرعة (Avg Mbps)',
+                    data: [egypt.avg_speed_mbps, compare.avg_speed_mbps],
+                    backgroundColor: ['#22C55E', '#6C4DFF'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#fff', font: { family: 'Tajawal' } } } },
+                scales: {
+                    y: { ticks: { color: '#94A3B8' }, grid: { color: '#2E364F' } },
+                    x: { ticks: { color: '#94A3B8', font: { family: 'Tajawal' } }, grid: { display: false } }
+                }
+            }
+        });
+
+        if (compCharts.price) compCharts.price.destroy();
+        compCharts.price = new Chart(ctxPrice, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'مؤشر القدرة الشرائية (%)',
+                    data: [egypt.affordability_percent, compare.affordability_percent],
+                    backgroundColor: ['#22C55E', '#6C4DFF'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#fff', font: { family: 'Tajawal' } } } },
+                scales: {
+                    y: { ticks: { color: '#94A3B8' }, grid: { color: '#2E364F' } },
+                    x: { ticks: { color: '#94A3B8', font: { family: 'Tajawal' } }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function compRenderTable() {
+        const tbody = document.getElementById('comp-table-body');
+        tbody.innerHTML = '';
+        
+        compGlobalDataset.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F; display:flex; align-items:center; gap:0.5rem; justify-content:flex-end;">
+                    <span>${c.name}</span>
+                    ${c.flag ? '<img src="' + c.flag + '" width="24" style="border-radius:2px;" alt="">' : ''}
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F;">${c.avg_speed_mbps || '-'}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F;">${c.max_speed_mbps || '-'}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F;">
+                    ${c.internet_type === 'Unlimited' ? '<span style="color:#22C55E;font-weight:bold;">غير محدود</span>' : (c.internet_type === 'Limited' ? '<span style="color:#EF4444;font-weight:bold;">باقات محدودة</span>' : '-')}
+                </td>
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F;">${c.avg_price_usd || '-'}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F;">${c.min_salary_usd ? c.min_salary_usd + " <span style='font-size:0.8rem;color:#94A3B8'>(" + (c.salary_type||'مقدر') + ")</span>" : '-'}</td>
+                <td style="padding: 1rem; border-bottom: 1px solid #2E364F; font-weight:bold; color:#6C4DFF;">${c.affordability_percent ? c.affordability_percent + '%' : '-'}</td>
+            `;
+            tbody.appendChild(tr);
         });
     }
 });
