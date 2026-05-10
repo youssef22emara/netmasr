@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetMasr - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div id="adminUnauthorized" class="admin-unauthorized hidden">
+        <h1>❌ غير مصرح</h1>
+        <p>لا توجد صلاحيات للوصول لهذه الصفحة. كلمة السر غير صحيحة.</p>
+    </div>
+
+    <div id="adminAuthorized" class="hidden">
+        <div class="admin-container">
+            <a href="index.html" class="nav-back">← العودة للرئيسية</a>
+            
+            <div class="admin-header">
+                <h1>🛠️ لوحة تحكم NetMasr</h1>
+                <p>إدارة المنشورات والمحتوى</p>
+            </div>
+
+            <!-- ALERTS -->
+            <div id="successAlert" class="alert alert-success hidden"></div>
+            <div id="errorAlert" class="alert alert-error hidden"></div>
+
+            <!-- ADD NEW POST SECTION -->
+            <div class="admin-section">
+                <div class="admin-section-title">➕ إضافة منشور جديد</div>
+                <form id="addPostForm">
+                    <div class="form-group">
+                        <label for="postCaption">تعليقك / نص المنشور <span class="danger">*</span></label>
+                        <textarea id="postCaption" rows="4" placeholder="اكتب تعليقك أو نص المنشور هنا..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="postUrl">رابط المحتوى (اختياري)</label>
+                        <input type="url" id="postUrl" placeholder="https://youtu.be/... أو https://facebook.com/..." />
+                        <div class="form-helper">اتركه فارغاً للمنشور النصي فقط</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">نشر المنشور 🚀</button>
+                </form>
+            </div>
+
+            <!-- POSTS MANAGEMENT SECTION -->
+            <div class="admin-section">
+                <div class="admin-section-title">📋 إدارة المنشورات</div>
+                <div id="postsListContainer">
+                    <div class="empty-state">جاري تحميل المنشورات...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

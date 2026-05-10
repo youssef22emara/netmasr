@@ -65,6 +65,7 @@
                 <a href="#" class="nav-link" data-target="submit">تقديم شكوى</a>
                 <a href="#" class="nav-link" data-target="track">متابعة الشكوى</a>
                 <a href="#" class="nav-link" data-target="statistics">الإحصائيات</a>
+                <a href="#" class="nav-link" data-target="history">تاريخ الإنترنت</a>
                 <a href="#" class="nav-link" data-target="comparison">مقارنة الدول</a>
             </nav>
         </div>
@@ -80,42 +81,56 @@
                 <div class="hero-content">
                     <h1 class="hero-title">المنصة الذكية لحماية حقوق مستخدمي الإنترنت في مصر</h1>
                     <p class="hero-subtitle">بيانات دقيقة عبر آلية تحقق ذكية. تساهم كل شكوى في بناء لوحة المؤشرات الوطنية لحقوق المستهلكين.</p>
+                    <div class="hero-video-wrapper">
+                        <iframe 
+                            width="100%" 
+                            height="400"
+                            src="https://www.youtube.com/embed/8FOMdLfrw4Y"
+                            title="NetMasr - منصة شكاوى الإنترنت في مصر"
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
                     <div class="hero-actions">
                         <button class="btn btn-primary nav-action" data-target="submit">قدم شكوتك الآن 🚀</button>
                         <button class="btn btn-outline nav-action" data-target="track">المتابعة الآمنة 🔍</button>
                     </div>
                 </div>
 
-                <div class="timeline-container">
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="date-badge">🚀 الجمعة</div>
-                            <h3>تسجيل الشكوى</h3>
-                            <p>تسجيل الشكوى الأسبوعية الخاصة بك على المنصة.</p>
+                <div class="homepage-updates">
+                    <section class="stats-section">
+                        <div class="stats-section-head">
+                            <h2>📊 إحصائيات مباشرة</h2>
+                            <p>أحدث أرقام الشكاوى يتم تحديثها تلقائياً كل ٦٠ ثانية.</p>
                         </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="date-badge">📅 الجمعة ➝ الثلاثاء</div>
-                            <h3>التوعية الاجتماعية</h3>
-                            <p>شارك رابط المنصة <a href="https://netmasr.casacam.net" target="_blank" style="color:var(--primary);">netmasr.casacam.net</a> على السوشيال ميديا وادعو الناس للتسجيل.</p>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="date-badge">💬 الثلاثاء ➝ الجمعة</div>
-                            <h3>بناء ضغط عام</h3>
-                            <p>اكتب كومنت على أي منشور بالنص التالي:</p>
-                            <div class="copy-box" style="margin-top:10px; background:rgba(0,0,0,0.4); padding:15px; border-radius:8px; border-right:3px solid var(--primary); font-family:monospace; line-height:1.8;">
-                                NetMasr | نت مصر<br>
-                                netmasr.casacam.net<br>
-                                لكل مصري يعاني من مشاكل الإنترنت — سجل شكوتك هنا
+                        <div class="stats-grid">
+                            <div class="stats-card">
+                                <span class="stats-card-label">📊 إجمالي الشكاوى</span>
+                                <strong id="statsTotalComplaints" class="stats-card-value">0</strong>
+                            </div>
+                            <div class="stats-card">
+                                <span class="stats-card-label">📈 شكاوى هذا الأسبوع</span>
+                                <strong id="statsWeeklyComplaints" class="stats-card-value">0</strong>
+                            </div>
+                            <div class="stats-card">
+                                <span class="stats-card-label">🔥 معدل النمو</span>
+                                <strong id="statsGrowthRate" class="stats-card-value">0%</strong>
+                            </div>
+                            <div class="stats-card">
+                                <span class="stats-card-label">🏙️ محافظة نشطة</span>
+                                <strong id="statsGovernorateActive" class="stats-card-value">-</strong>
                             </div>
                         </div>
-                    </div>
+                    </section>
+
+                    <section class="community-feed-section">
+                        <div class="community-section-head">
+                            <h2>🗞️ من المنصة والمجتمع</h2>
+                            <p>منشورات يديرها المسؤولون والمجتمع مباشرة.</p>
+                        </div>
+                        <div id="communityFeed" class="feed-list"></div>
+                    </section>
                 </div>
             </div>
         </section>
@@ -136,14 +151,7 @@
                         <p class="tracking-pin-text">تأكيد: قم بحفظ رقم الشكوى هذا ورقم خطك المرفق بها للمتابعة: <br><strong id="displayComplaintId" class="tracking-pin mt-15"></strong></p>
                         <div class="official-badge">✅ جاهز للتوثيق الرسمي لدى الجهاز القومي لتنظيم الاتصالات</div>
                         
-                        <div class="escalation-actions mt-30">
-                            <h4 class="escalation-title">📬 وصّل شكوتك للجهاز القومي لتنظيم الاتصالات</h4>
-                            <div class="escalation-divider"></div>
-                            
-                            <a href="#" id="btnWhatsapp" target="_blank" class="btn btn-whatsapp btn-block" style="padding: 14px;">أرسل شكوتك عبر واتساب 📲</a>
-                            <a href="#" id="btnGmail" target="_blank" class="btn btn-primary btn-block mt-15" style="padding: 14px;">أرسل شكوتك عبر البريد الإلكتروني 📧</a>
-                            <a href="https://complaints.tra.gov.eg/" id="btnTraSite" target="_blank" class="btn btn-outline-primary btn-block mt-15" style="padding: 14px;">تقديم شكوى رسمية على الموقع الرسمي 🏛️</a>
-                        </div>
+                        <div id="actionButtonsContainer" class="escalation-actions mt-30"></div>
                     </div>
 
                     <div id="errorMessage" class="alert alert-danger hidden"></div>
@@ -218,6 +226,12 @@
                             </div>
                         </div>
 
+                        <div class="form-group slidable-field" id="companyComplaintNumberGroup">
+                            <label for="companyComplaintNumber">رقم شكوى الشركة (إن وجد)</label>
+                            <input type="text" id="companyComplaintNumber" placeholder="أدخل رقم الشكوى الذي أعطتك إياه الشركة">
+                            <p class="input-helper" style="margin-top: 8px;">إذا رفضت الشركة إعطائك رقماً، ضع علامة في المربع أدناه</p>
+                        </div>
+
                         <div class="form-group">
                             <label for="category">نوع المشكلة <span class="danger">*</span></label>
                             <select id="category" required>
@@ -275,6 +289,7 @@
 
                     <div id="trackResultContainer" class="hidden">
                         <div id="trackResultBoxes"></div>
+                        <div id="trackActionButtonsContainer" class="escalation-actions mt-30 hidden"></div>
                     </div>
                 </div>
             </div>
@@ -375,6 +390,162 @@
                 </div>
             </div>
             
+        </section>
+
+        <!-- =======================
+             HISTORY SECTION 
+             ======================= -->
+        <section id="section-history" class="page-section hidden-section">
+            <div class="content-wrapper">
+                <div class="history-section-head text-center">
+                    <h2>📡 تاريخ الإنترنت في مصر</h2>
+                    <p>رحلة تقنية ممتدة منذ بدايات الإنترنت في مصر وحتى عصر الألياف الضوئية.</p>
+                </div>
+
+                <div class="kpi-grid history-kpi-grid">
+                    <div class="kpi-card"><strong class="kpi-value">80M+</strong><span class="kpi-title">مستخدم إنترنت في مصر</span></div>
+                    <div class="kpi-card"><strong class="kpi-value">52%</strong><span class="kpi-title">نسبة الاختراق</span></div>
+                    <div class="kpi-card"><strong class="kpi-value">#3</strong><span class="kpi-title">ثالث دولة عربية استخدمت الإنترنت</span></div>
+                    <div class="kpi-card"><strong class="kpi-value">30+</strong><span class="kpi-title">عاماً من التطور المتواصل</span></div>
+                </div>
+
+                <div class="card history-intro-card">
+                    <p>مصر ثالث دولة عربية حصلت على الإنترنت بعد تونس والكويت.
+                    بدأت الرحلة عام 1992 من الجامعات، ووصلت اليوم إلى أكثر من 80 مليون مستخدم.
+                    على مدار 30 عاماً، شهدت مصر تحولات جذرية في البنية التحتية للاتصالات —
+                    من خطوط هاتفية بطيئة إلى شبكات ألياف ضوئية.</p>
+                </div>
+
+                <div class="card history-video-card">
+                    <h3 class="history-card-title">🎬 الفيديو التوثيقي الكامل عن تاريخ الإنترنت في مصر</h3>
+                    <div class="history-video-wrapper">
+                        <iframe width="100%" height="400" src="https://www.youtube.com/embed/TToXLKLiD5M" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div class="history-charts-grid">
+                    <div class="card chart-card">
+                        <h3>📈 نمو مستخدمي الإنترنت في مصر (بالمليون)</h3>
+                        <div class="chart-container history-chart-container"><canvas id="historyUsersChart"></canvas></div>
+                        <div class="history-chart-legend">
+                            <span><span class="legend-swatch purple"></span> إنترنت أرضي</span>
+                            <span><span class="legend-swatch teal"></span> إنترنت موبايل</span>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>⚡ تطور سرعة الإنترنت عبر الأجيال</h3>
+                        <div class="chart-container history-chart-container" style="height: 280px;"><canvas id="historySpeedChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="history-timeline-section">
+                    <div class="section-header text-center" style="margin-bottom: 25px;">
+                        <h3>🕐 المحطات الكبرى</h3>
+                    </div>
+                    <div class="history-timeline">
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">1992</div>
+                            <h4>🎓 بداية الإنترنت في مصر</h4>
+                            <p>ربط شبكة الجامعات المصرية بشبكة بت نت الفرنسية.
+                            الخدمة مقتصرة على الجامعات ومركز المعلومات فقط.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">1994</div>
+                            <h4>🏛️ توسع حكومي</h4>
+                            <p>إدخال الإنترنت للوزارات والهيئات الحكومية والمحافظات.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">1997</div>
+                            <h4>📞 الإنترنت للمنازل — Dial-Up</h4>
+                            <p>أول إنترنت للمواطنين عبر Dial-Up ورقم 0777.
+                            16 شركة خاصة تقدم الخدمة عبر المصرية للاتصالات.
+                            السرعة: 56 كيلوبت — والانتظار 5 دقائق أحياناً!</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2000</div>
+                            <h4>📈 انتشار واسع</h4>
+                            <p>وصل عدد شركات الإنترنت إلى 68 شركة في السوق المصري.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2002</div>
+                            <h4>🆓 مبادرة الإنترنت المجاني</h4>
+                            <p>مشروع حكومي لتقديم الإنترنت بسعر المكالمة العادية.
+                            70% للشركات الخاصة — 30% للمصرية للاتصالات.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2004</div>
+                            <h4>⚡ ثورة ADSL</h4>
+                            <p>إطلاق مبادرة الإنترنت فائق السرعة ADSL.
+                            السعر الأولي: 150 جنيه شهرياً لسرعة 256 كيلوبت.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2007</div>
+                            <h4>📱 دخول شبكات 3G</h4>
+                            <p>أول شبكات الجيل الثالث في مصر.
+                            بداية الإنترنت الحقيقي على الموبايل.</p>
+                        </div>
+                        <div class="history-timeline-item special">
+                            <div class="history-year-badge">2011</div>
+                            <h4>⛔ قطع الإنترنت</h4>
+                            <p>في يناير 2011 قطعت الحكومة الإنترنت لمدة 5 أيام —
+                            حدث غير مسبوق في التاريخ الرقمي المصري.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2014</div>
+                            <h4>✊ صحوة حقوق المستخدم</h4>
+                            <p>ظهور حركات على فيسبوك تطالب بزيادة السرعات وتخفيض الأسعار.
+                            بداية الوعي بحقوق مستهلكي الإنترنت.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2017</div>
+                            <h4>🚀 إطلاق شبكات 4G رسمياً</h4>
+                            <p>طفرة حقيقية للمستخدمين.
+                            سرعات تصل إلى 50-150 ميجابت/ثانية.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2020</div>
+                            <h4>🏠 طفرة الإنترنت المنزلي</h4>
+                            <p>جائحة كورونا تدفع الطلب لأرقام قياسية.
+                            توسع كبير في شبكات الألياف الضوئية FTTH.</p>
+                        </div>
+                        <div class="history-timeline-item">
+                            <div class="history-year-badge">2026</div>
+                            <h4>📊 الواقع الحالي</h4>
+                            <p>أكثر من 80 مليون مستخدم في مصر.
+                            لكن الأسعار لا تزال مرتفعة قياساً بالدخل.
+                            ولهذا وُجدت NetMasr 💜</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card history-table-card">
+                    <h3>📱 تطور شبكات الموبايل في مصر</h3>
+                    <div class="table-responsive">
+                        <table class="data-table history-data-table">
+                            <thead>
+                                <tr>
+                                    <th>الجيل</th>
+                                    <th>التقنية</th>
+                                    <th>السنة</th>
+                                    <th>السرعة النظرية</th>
+                                    <th>الملاحظة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="history-badge blue">2G</span></td><td>GSM/GPRS</td><td>1996</td><td>9-114 كيلوبت</td><td>مكالمات ورسائل فقط</td></tr>
+                                <tr><td><span class="history-badge blue">2.5G</span></td><td>EDGE</td><td>2003</td><td>حتى 384 كيلوبت</td><td>بداية الإنترنت على الموبايل</td></tr>
+                                <tr><td><span class="history-badge green">3G</span></td><td>UMTS/HSPA</td><td>2007</td><td>1-14 ميجابت</td><td>فيديو وتصفح حقيقي</td></tr>
+                                <tr><td><span class="history-badge green">3.5G</span></td><td>HSPA+</td><td>2012</td><td>حتى 42 ميجابت</td><td>تحسين ملحوظ في السرعة</td></tr>
+                                <tr><td><span class="history-badge purple">4G</span></td><td>LTE</td><td>2017</td><td>50-150 ميجابت</td><td>طفرة حقيقية للمستخدمين</td></tr>
+                                <tr><td><span class="history-badge purple">4G+</span></td><td>LTE-A</td><td>2019</td><td>حتى 300 ميجابت</td><td>تجميع الترددات</td></tr>
+                                <tr><td><span class="history-badge orange">5G</span></td><td>NR</td><td>قريباً</td><td>+1 جيجابت</td><td>لا يزال محدود الانتشار</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <p class="history-source-note">المصادر: ويكيبيديا العربية، المصرية للاتصالات، اليوم السابع — البيانات للأغراض التوضيحية والتعليمية</p>
+            </div>
         </section>
 
         <!-- =======================
@@ -671,6 +842,7 @@
         </div>
         <div class="footer-bottom">
             <div class="footer-links" style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px;">
+                <a href="#" class="nav-link" data-target="history" style="font-size: 0.95rem;">تاريخ الإنترنت</a>
                 <a href="#" class="nav-link" data-target="privacy" style="font-size: 0.95rem;">سياسة الخصوصية</a>
                 <a href="#" class="nav-link" data-target="terms" style="font-size: 0.95rem;">شروط الاستخدام</a>
             </div>

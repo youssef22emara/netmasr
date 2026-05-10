@@ -1,0 +1,50 @@
+.admin-unauthorized { text-align: center; padding: 100px 20px; }
+.admin-unauthorized h1 { color: var(--danger); font-size: 3rem; }
+.admin-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+.admin-header { text-align: center; margin-bottom: 40px; }
+.admin-header h1 { font-size: 2.5rem; margin-bottom: 10px; color: #FFF; }
+.admin-header p { color: var(--text-muted); font-size: 1.1rem; }
+.admin-section { background: var(--bg-card); border: 1px solid var(--card-border); border-radius: 16px; padding: 30px; margin-bottom: 40px; }
+.admin-section-title { font-size: 1.5rem; color: #FFF; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #FFF; }
+.form-group textarea, .form-group input { width: 100%; padding: 14px; background-color: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-light); font-family: Tajawal; font-size: 1rem; }
+.form-group textarea:focus, .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108,77,255,0.2); }
+.form-helper { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
+.btn-submit { width: 100%; padding: 15px; background-color: #34C759; color: white; border: none; border-radius: 8px; font-family: Tajawal; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; }
+.btn-submit:hover { background-color: #2EBF50; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52,199,89,0.4); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.post-card { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: start; }
+.post-card-left { flex: 1; }
+.post-type-badge { display: inline-block; background: rgba(108,77,255,0.2); color: #C4B5FD; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-bottom: 10px; }
+.post-caption-preview { color: var(--text-light); margin-bottom: 10px; line-height: 1.6; }
+.post-meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; }
+.post-stats { color: var(--text-muted); font-size: 0.9rem; }
+.post-card-actions { display: flex; gap: 10px; }
+.btn-edit, .btn-delete { padding: 10px 16px; border: 1px solid var(--card-border); border-radius: 8px; background: transparent; color: var(--text-light); cursor: pointer; font-family: Tajawal; transition: all 0.2s ease; }
+.btn-edit { color: var(--primary); border-color: var(--primary); }
+.btn-edit:hover { background: rgba(108,77,255,0.1); }
+.btn-delete { color: var(--danger); border-color: var(--danger); }
+.btn-delete:hover { background: rgba(255,77,77,0.1); }
+.btn-save, .btn-cancel { padding: 8px 16px; border: 1px solid var(--card-border); border-radius: 6px; background: transparent; color: var(--text-light); cursor: pointer; font-family: Tajawal; font-size: 0.9rem; transition: all 0.2s ease; margin-right: 10px; }
+.btn-save { color: var(--success); border-color: var(--success); }
+.btn-save:hover { background: rgba(52,199,89,0.1); }
+.btn-cancel { color: var(--danger); border-color: var(--danger); }
+.btn-cancel:hover { background: rgba(255,77,77,0.1); }
+.edit-textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--primary); border-radius: 8px; color: var(--text-light); font-family: Tajawal; font-size: 0.95rem; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+.alert-success { background: rgba(30,204,163,0.1); border: 1px solid var(--success); color: var(--success); }
+.alert-error { background: rgba(255,77,77,0.1); border: 1px solid var(--danger); color: var(--danger); }
+.alert-danger { background: rgba(255,77,77,0.1); border: 1px solid var(--danger); color: var(--danger); }
+.alert.hidden { display: none; }
+.nav-back { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: transparent; border: 1px solid var(--card-border); border-radius: 8px; color: var(--primary); text-decoration: none; font-family: Tajawal; cursor: pointer; margin-bottom: 20px; transition: all 0.2s ease; }
+.nav-back:hover { background: rgba(108,77,255,0.1); }
+
+@media (max-width: 768px) {
+    .admin-header h1 { font-size: 1.8rem; }
+    .admin-section { padding: 20px; }
+    .post-card { flex-direction: column; }
+    .post-card-actions { width: 100%; gap: 10px; }
+    .btn-edit, .btn-delete { flex: 1; }
+}

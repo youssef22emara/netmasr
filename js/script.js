@@ -1,8 +1,427 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE = 'https://netmasrbackend-production.up.railway.app/api/complaints';
+    const COMPLAINTS_API = 'https://netmasrbackend-production.up.railway.app/api/complaints';
+    const STATS_API = 'https://netmasrbackend-production.up.railway.app/api/complaints/stats';
+    const POSTS_API = 'https://netmasrbackend-production.up.railway.app/api/posts';
+    const STATS_REFRESH_INTERVAL = 60000;
+    let statsRefreshTimer = null;
     let companyChartInstance = null;
     let categoryChartInstance = null;
+
+    // ==========================================
+    // TIMEAGO HELPER (Arabic)
+    // ==========================================
+    function formatTimeAgo(dateString) {
+        const now = new Date();
+        const postDate = new Date(dateString);
+        const diffMs = now - postDate;
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        const diffWeeks = Math.floor(diffDays / 7);
+
+        if (diffSecs < 60) return 'أقل من دقيقة';
+        if (diffMins < 60) return diffMins === 1 ? 'منذ دقيقة' : `منذ ${diffMins} دقيقة`;
+        if (diffHours < 24) return diffHours === 1 ? 'منذ ساعة' : `منذ ${diffHours} ساعة`;
+        if (diffDays < 7) return diffDays === 1 ? 'منذ يوم' : `منذ ${diffDays} أيام`;
+        if (diffWeeks < 4) return diffWeeks === 1 ? 'منذ أسبوع' : `منذ ${diffWeeks} أسابيع`;
+
+        return postDate.toLocaleDateString('ar-EG');
+    }
+
+    // ==========================================
+    // COMMUNITY FEED LOGIC
+    // ==========================================
+    let allPosts = [];
+
+    async function loadCommunityFeed() {
+        try {
+            const response = await fetch(POSTS_API);
+            const result = await response.json();
+            
+            if (result.success && Array.isArray(result.data)) {
+                allPosts = result.data;
+                renderCommunityFeed();
+            } else {
+                console.error('Invalid posts response:', result);
+            }
+        } catch (err) {
+            console.error('Failed to load community feed:', err);
+        }
+    }
+
+    function formatArabicNumber(value) {
+        return Number(value).toLocaleString('ar-EG');
+    }
+
+    function animateCounter(element, targetValue, suffix = '', duration = 1200) {
+        const startValue = 0;
+        const startTime = performance.now();
+        const targetNumber = Number(targetValue) || 0;
+
+        requestAnimationFrame(function animate(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const currentValue = Math.round(startValue + (targetNumber - startValue) * progress);
+            element.textContent = `${formatArabicNumber(currentValue)}${suffix}`;
+            if (progress < 1) requestAnimationFrame(animate);
+        });
+    }
+
+    function getLocalPostState(postId) {
+        try {
+            const saved = localStorage.getItem(`post_likes_${postId}`);
+            if (!saved) return null;
+            return JSON.parse(saved);
+        } catch (err) {
+            console.error('Failed to read post state', err);
+            return null;
+        }
+    }
+
+    function setLocalPostState(postId, state) {
+        try {
+            localStorage.setItem(`post_likes_${postId}`, JSON.stringify(state));
+        } catch (err) {
+            console.error('Failed to save post state', err);
+        }
+    }
+
+    async function fetchLiveStats() {
+        const totalEl = document.getElementById('statsTotalComplaints');
+        const weeklyEl = document.getElementById('statsWeeklyComplaints');
+        const growthEl = document.getElementById('statsGrowthRate');
+        const govEl = document.getElementById('statsGovernorateActive');
+
+        try {
+            // Fetch complaints data (includes total count and weekly progression)
+            const complaintsRes = await fetch(COMPLAINTS_API);
+            const complaintsData = await complaintsRes.json();
+
+            // Fetch stats data (includes governorate grouping and companies)
+            const statsRes = await fetch(STATS_API);
+            const statsData = await statsRes.json();
+
+            // Extract total complaints count
+            let totalComplaints = 0;
+            if (complaintsData.success && complaintsData.count) {
+                totalComplaints = complaintsData.count;
+            }
+
+            // Extract weekly data and calculate stats
+            let weeklyComplaints = 0;
+            let growthPercentage = 0;
+            if (complaintsData.success && complaintsData.weeklyProgression && complaintsData.weeklyProgression.length > 0) {
+                weeklyComplaints = complaintsData.weeklyProgression[0].totalComplaints;
+                growthPercentage = complaintsData.weeklyProgression[0].growthPercentage;
+            }
+
+            // Extract top governorate from all complaints
+            let topGovernorate = '-';
+            if (complaintsData.success && complaintsData.data && Array.isArray(complaintsData.data)) {
+                const govCounts = {};
+                complaintsData.data.forEach(complaint => {
+                    if (complaint.governorate) {
+                        govCounts[complaint.governorate] = (govCounts[complaint.governorate] || 0) + 1;
+                    }
+                });
+                
+                let maxCount = 0;
+                for (const [gov, count] of Object.entries(govCounts)) {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        topGovernorate = gov;
+                    }
+                }
+            }
+
+            // Animate and update the UI
+            animateCounter(totalEl, totalComplaints);
+            animateCounter(weeklyEl, weeklyComplaints);
+            animateCounter(growthEl, Math.round(growthPercentage), '%');
+            govEl.textContent = topGovernorate || '-';
+        } catch (err) {
+            console.error('Failed to load live stats', err);
+        }
+    }
+
+    function renderCommunityFeed() {
+        const feedContainer = document.getElementById('communityFeed');
+        if (!feedContainer) return;
+        feedContainer.innerHTML = '';
+
+        if (!allPosts || allPosts.length === 0) {
+            feedContainer.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">لا توجد منشورات حالياً</div>';
+            return;
+        }
+
+        allPosts.forEach(post => {
+            const card = createPostCard(post);
+            feedContainer.appendChild(card);
+        });
+    }
+
+    function initHistorySection() {
+        renderHistoryCharts();
+        observeHistoryTimeline();
+    }
+
+    function renderHistoryCharts() {
+        const usersCtx = document.getElementById('historyUsersChart');
+        if (usersCtx && typeof Chart !== 'undefined') {
+            new Chart(usersCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1997','2000','2004','2007','2011','2014','2017','2020','2023','2026'],
+                    datasets: [
+                        {
+                            label: 'إنترنت أرضي',
+                            data: [0.1, 0.8, 2, 5, 12, 20, 28, 35, 40, 45],
+                            borderColor: '#6C4DFF',
+                            backgroundColor: 'rgba(108,77,255,0.1)',
+                            pointBackgroundColor: '#6C4DFF',
+                            pointBorderColor: '#6C4DFF',
+                            borderWidth: 3,
+                            tension: 0.35,
+                            fill: false,
+                            pointRadius: 5,
+                        },
+                        {
+                            label: 'إنترنت موبايل',
+                            data: [0, 0, 0.5, 3, 10, 25, 45, 60, 72, 80],
+                            borderColor: '#1ECCA3',
+                            backgroundColor: 'rgba(30,204,163,0.15)',
+                            pointBackgroundColor: '#1ECCA3',
+                            pointBorderColor: '#1ECCA3',
+                            borderWidth: 3,
+                            tension: 0.35,
+                            fill: false,
+                            borderDash: [5, 5],
+                            pointRadius: 5,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#C4B5FD' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                        y: { beginAtZero: true, ticks: { color: '#C4B5FD' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+                    },
+                    plugins: { legend: { display: false } },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+        }
+
+        const speedCtx = document.getElementById('historySpeedChart');
+        if (speedCtx && typeof Chart !== 'undefined') {
+            new Chart(speedCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dial-Up 56k','ADSL 256k','ADSL 8M','3G','4G LTE','ألياف ضوئية'],
+                    datasets: [{
+                        label: 'Mbps',
+                        data: [0.056, 0.256, 8, 14, 150, 1000],
+                        backgroundColor: ['#888780','#85B7EB','#378ADD','#97C459','#7F77DD','#EF9F27'],
+                        borderRadius: 12,
+                        barThickness: 24
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            beginAtZero: false,
+                            ticks: {
+                                color: '#C4B5FD',
+                                callback: value => `${value} Mbps`
+                            },
+                            grid: { color: 'rgba(255,255,255,0.08)' }
+                        },
+                        y: { ticks: { color: '#C4B5FD' }, grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => `${context.parsed.x} Mbps`
+                            }
+                        }
+                    },
+                    animation: { duration: 900 },
+                    layout: { padding: { right: 40 } },
+                    plugins: [{
+                        id: 'historySpeedLabels',
+                        afterDatasetsDraw(chart) {
+                            const ctx = chart.ctx;
+                            chart.getDatasetMeta(0).data.forEach((bar, index) => {
+                                const value = chart.data.datasets[0].data[index];
+                                ctx.save();
+                                ctx.font = '600 0.95rem Tajawal';
+                                ctx.fillStyle = '#FFF';
+                                ctx.textAlign = 'left';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(`${value} Mbps`, bar.x + 12, bar.y);
+                                ctx.restore();
+                            });
+                        }
+                    }]
+                }
+            });
+        }
+    }
+
+    function observeHistoryTimeline() {
+        const timelineItems = document.querySelectorAll('.history-timeline-item');
+        if (!timelineItems.length || typeof IntersectionObserver === 'undefined') return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        timelineItems.forEach(item => observer.observe(item));
+    }
+
+    function createPostCard(post) {
+        const card = document.createElement('div');
+        card.className = 'feed-post-card';
+        card.id = `post-${post._id}`;
+
+        const timeAgo = formatTimeAgo(post.createdAt);
+        const userVote = getLocalVote(post._id);
+
+        let contentHtml = '';
+
+        if (post.type === 'youtube' && post.youtubeId) {
+            contentHtml = `
+                <div class="post-content">${escapeHtml(post.caption)}</div>
+                <div class="video-wrapper">
+                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/${post.youtubeId}" 
+                        frameborder="0" allowfullscreen></iframe>
+                </div>
+            `;
+        } else if (post.type === 'facebook' && post.contentUrl) {
+            const encodedUrl = encodeURIComponent(post.contentUrl);
+            contentHtml = `
+                <div class="post-content">${escapeHtml(post.caption)}</div>
+                <div class="fb-wrapper">
+                    <iframe src="https://www.facebook.com/plugins/post.php?href=${encodedUrl}&width=500&show_text=true" 
+                        width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+                </div>
+            `;
+        } else {
+            // Text post
+            contentHtml = `<div class="post-content">${escapeHtml(post.caption)}</div>`;
+        }
+
+        card.innerHTML = `
+            <div class="post-header">
+                <div class="post-avatar">N</div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span class="post-author">NetMasr</span>
+                        <span class="verified-badge">✓</span>
+                    </div>
+                    <div class="post-time">${timeAgo}</div>
+                </div>
+            </div>
+            ${contentHtml}
+            <div class="post-actions">
+                <button class="react-btn ${userVote === 'like' ? 'liked' : ''}" data-post-id="${post._id}" data-action="like">👍 أعجبني <span class="count">${formatArabicNumber(post.likes)}</span></button>
+                <button class="react-btn ${userVote === 'dislike' ? 'disliked' : ''}" data-post-id="${post._id}" data-action="dislike">👎 لم يعجبني <span class="count">${formatArabicNumber(post.dislikes)}</span></button>
+            </div>
+        `;
+
+        card.querySelectorAll('.react-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const postId = btn.dataset.postId;
+                const action = btn.dataset.action;
+                handleReaction(postId, action, btn);
+            });
+        });
+
+        return card;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function getLocalVote(postId) {
+        try {
+            const stored = localStorage.getItem(`vote_${postId}`);
+            return stored ? JSON.parse(stored) : null;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    function setLocalVote(postId, vote) {
+        try {
+            localStorage.setItem(`vote_${postId}`, JSON.stringify(vote));
+        } catch (err) {
+            console.error('Failed to save vote:', err);
+        }
+    }
+
+    async function handleReaction(postId, action, buttonEl) {
+        const currentVote = getLocalVote(postId);
+        
+        // If they're clicking the same action they already voted on, do nothing
+        if ((action === 'like' && currentVote === 'like') || (action === 'dislike' && currentVote === 'dislike')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${POSTS_API}/${postId}/react`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: action })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                // Update UI
+                const card = document.getElementById(`post-${postId}`);
+                const likeBtn = card.querySelector('[data-action="like"]');
+                const dislikeBtn = card.querySelector('[data-action="dislike"]');
+
+                likeBtn.querySelector('.count').textContent = formatArabicNumber(result.data.likes);
+                dislikeBtn.querySelector('.count').textContent = formatArabicNumber(result.data.dislikes);
+
+                // Update button states
+                likeBtn.classList.toggle('liked', action === 'like');
+                dislikeBtn.classList.toggle('disliked', action === 'dislike');
+
+                // Save vote locally
+                setLocalVote(postId, action);
+            } else {
+                console.error('Failed to save reaction');
+            }
+        } catch (err) {
+            console.error('Error handling reaction:', err);
+        }
+    }
+    function initHomepageWidgets() {
+        fetchLiveStats();
+        loadCommunityFeed();
+        initHistorySection();
+        if (statsRefreshTimer) clearInterval(statsRefreshTimer);
+        statsRefreshTimer = setInterval(fetchLiveStats, STATS_REFRESH_INTERVAL);
+    }
 
     // Governorate Codes mapping (Standard Egyptian prefixes)
     const governorateCodes = {
@@ -59,6 +478,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    initHomepageWidgets();
+
     // ==========================================
     // 2. FORM VALIDATION & SUBMISSION
     // ==========================================
@@ -111,6 +532,106 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneInput.classList.add('error-border');
         phoneErrorHelper.textContent = msg;
         phoneErrorHelper.classList.remove('hidden');
+    }
+
+    const companyComplaintNumberInput = document.getElementById('companyComplaintNumber');
+    const companyComplaintNumberGroup = document.getElementById('companyComplaintNumberGroup');
+    const actionButtonsContainer = document.getElementById('actionButtonsContainer');
+    const trackActionButtonsContainer = document.getElementById('trackActionButtonsContainer');
+
+    function getArabicCategory(category) {
+        const catMap = {
+            'General Internet Issues': 'مشاكل عامة في الإنترنت (بطء أو انقطاع)',
+            'Data Limit Issues': 'مشاكل باقة / نفاذ الجيجات',
+            'Service Market Issues': 'مشاكل احتكار أو تسعير',
+            'Customer Service Issues': 'سوء خدمة العملاء',
+            'Other': 'أخرى'
+        };
+        return catMap[category] || category;
+    }
+
+    function getNextFridayGoogleCalendarUrl(title, description) {
+        const now = new Date();
+        const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 10, 0, 0));
+        const currentDay = candidate.getUTCDay();
+        let diff = (5 - currentDay + 7) % 7;
+        if (diff === 0 && now >= candidate) diff = 7;
+        candidate.setUTCDate(candidate.getUTCDate() + diff);
+        const endDate = new Date(candidate);
+        endDate.setUTCHours(endDate.getUTCHours() + 1);
+
+        const formatDate = (date) => {
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
+        };
+
+        const dates = `${formatDate(candidate)}/${formatDate(endDate)}`;
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(description)}&dates=${dates}`;
+    }
+
+    function generateActionButtons(data, govArabic, container) {
+        if (!container) return;
+
+        const name = data.name || 'غير مذكور';
+        const category = getArabicCategory(data.category);
+        const messageBody = `السلام عليكم،
+أود تقديم شكوى رسمية بخصوص خدمة الإنترنت.
+
+رقم الشكوى على منصة NetMasr: ${data.customId}
+رابط المنصة: https://netmasr.casacam.net
+
+بيانات الشكوى:
+- الاسم: ${name}
+- المحافظة: ${govArabic}
+- الشركة المزودة: ${data.company}
+- نوع المشكلة: ${category}
+- وصف المشكلة: ${data.description}
+
+أرجو التكرم بالنظر في هذه الشكوى.`;
+
+        const emailSubject = `شكوى خدمة إنترنت – ${data.company} – ${data.customId}`;
+        const whatsappUrl = `https://wa.me/201551515505?text=${encodeURIComponent(messageBody)}`;
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&to=complaints@tra.gov.eg&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(messageBody)}`;
+        const calendarUrl = getNextFridayGoogleCalendarUrl(`تذكير متابعة شكوى NetMasr ${data.customId}`, messageBody);
+
+        container.innerHTML = `
+            <h4 class="escalation-title">📬 أرسل شكوتك للجهاز القومي لتنظيم الاتصالات</h4>
+            <div class="escalation-divider"></div>
+            <p class="track-action-note">هل أرسلت شكوتك للجهاز القومي؟ إذا لم تفعل، يمكنك إرسالها الآن 👇</p>
+            <a href="${whatsappUrl}" target="_blank" class="btn btn-whatsapp btn-block" style="padding: 14px;">أرسل شكوتك عبر واتساب 📲</a>
+            <a href="${gmailUrl}" target="_blank" class="btn btn-primary btn-block mt-15" style="padding: 14px;">أرسل شكوتك عبر البريد الإلكتروني 📧</a>
+            ${data.refusedComplaint ? '' : `<a href="https://complaints.tra.gov.eg/" target="_blank" class="btn btn-outline-primary btn-block mt-15" style="padding: 14px;">تقديم شكوى رسمية على الموقع الرسمي 🏛️</a>`}
+            <a href="${calendarUrl}" target="_blank" class="btn btn-calendar btn-block mt-15" style="padding: 14px;">📅 أضف تذكير الجمعة لتقويمك</a>
+        `;
+        container.classList.remove('hidden');
+    }
+
+    if (companyComplaintNumberGroup) {
+        const refusedCheckbox = document.getElementById('refusedComplaint');
+
+        const enableCompanyComplaintNumber = () => {
+            companyComplaintNumberInput.disabled = false;
+            companyComplaintNumberGroup.classList.remove('disabled-field');
+            companyComplaintNumberInput.setAttribute('placeholder', 'أدخل رقم الشكوى الذي أعطتك إياه الشركة');
+        };
+
+        const disableCompanyComplaintNumber = () => {
+            companyComplaintNumberInput.value = '';
+            companyComplaintNumberInput.disabled = true;
+            companyComplaintNumberGroup.classList.add('disabled-field');
+            companyComplaintNumberInput.setAttribute('placeholder', 'الحقل غير متاح لأن الشركة رفضت إعطاء رقم');
+        };
+
+        const toggleCompanyComplaintNumber = () => {
+            if (!refusedCheckbox.checked) {
+                enableCompanyComplaintNumber();
+            } else {
+                disableCompanyComplaintNumber();
+            }
+        };
+
+        refusedCheckbox.addEventListener('change', toggleCompanyComplaintNumber);
+        toggleCompanyComplaintNumber();
     }
 
     if(complaintForm) {
@@ -169,6 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 governorate: govSelect.value,
                 company: document.getElementById('company').value,
                 category: document.getElementById('category').value,
+                companyComplaintNumber: companyComplaintNumberInput ? companyComplaintNumberInput.value.trim() : '',
                 description: document.getElementById('description').value,
                 refusedComplaint: document.getElementById('refusedComplaint').checked
             };
@@ -192,63 +714,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (response.ok && result.success) {
                             const customId = result.data.customId;
-                    document.getElementById('displayComplaintId').textContent = customId;
-                    
-                    // Generate Arabic Escalation Messages
-                    const name = formData.name || 'غير مذكور';
-                    const govMap = {
-                        'Cairo': 'القاهرة', 'Giza': 'الجيزة', 'Alexandria': 'الإسكندرية', 'Dakahlia': 'الدقهلية', 'Red Sea': 'البحر الأحمر',
-                        'Beheira': 'البحيرة', 'Fayoum': 'الفيوم', 'Gharbia': 'الغربية', 'Ismailia': 'الإسماعيلية', 'Menofia': 'المنوفية',
-                        'Minya': 'المنيا', 'Qalyubia': 'القليوبية', 'New Valley': 'الوادي الجديد', 'Suez': 'السويس', 'Aswan': 'أسوان',
-                        'Assiut': 'أسيوط', 'Beni Suef': 'بني سويف', 'Port Said': 'بورسعيد', 'Damietta': 'دمياط', 'Sharkia': 'الشرقية',
-                        'South Sinai': 'جنوب سيناء', 'Kafr El Sheikh': 'كفر الشيخ', 'Matrouh': 'مطروح', 'Luxor': 'الأقصر', 'Qena': 'قنا',
-                        'North Sinai': 'شمال سيناء', 'Sohag': 'سوهاج'
-                    };
-                    const govArabic = govMap[formData.governorate] || formData.governorate;
+                            document.getElementById('displayComplaintId').textContent = customId;
 
-                    const catMap = {
-                        'General Internet Issues': 'مشاكل عامة في الإنترنت (بطء أو انقطاع)',
-                        'Data Limit Issues': 'مشاكل باقة / نفاذ الجيجات',
-                        'Service Market Issues': 'مشاكل احتكار أو تسعير',
-                        'Customer Service Issues': 'سوء خدمة العملاء',
-                        'Other': 'أخرى'
-                    };
-                    const catArabic = catMap[formData.category] || formData.category;
+                            const govMap = {
+                                'Cairo': 'القاهرة', 'Giza': 'الجيزة', 'Alexandria': 'الإسكندرية', 'Dakahlia': 'الدقهلية', 'Red Sea': 'البحر الأحمر',
+                                'Beheira': 'البحيرة', 'Fayoum': 'الفيوم', 'Gharbia': 'الغربية', 'Ismailia': 'الإسماعيلية', 'Menofia': 'المنوفية',
+                                'Minya': 'المنيا', 'Qalyubia': 'القليوبية', 'New Valley': 'الوادي الجديد', 'Suez': 'السويس', 'Aswan': 'أسوان',
+                                'Assiut': 'أسيوط', 'Beni Suef': 'بني سويف', 'Port Said': 'بورسعيد', 'Damietta': 'دمياط', 'Sharkia': 'الشرقية',
+                                'South Sinai': 'جنوب سيناء', 'Kafr El Sheikh': 'كفر الشيخ', 'Matrouh': 'مطروح', 'Luxor': 'الأقصر', 'Qena': 'قنا',
+                                'North Sinai': 'شمال سيناء', 'Sohag': 'سوهاج'
+                            };
+                            const govArabic = govMap[formData.governorate] || formData.governorate;
 
-                    const msgBody = `السلام عليكم،
-أود تقديم شكوى رسمية بخصوص خدمة الإنترنت.
+                            generateActionButtons({
+                                customId,
+                                name: formData.name,
+                                company: formData.company,
+                                category: formData.category,
+                                description: formData.description,
+                                refusedComplaint: formData.refusedComplaint
+                            }, govArabic, actionButtonsContainer);
 
-رقم الشكوى على منصة NetMasr: ${customId}
-رابط المنصة: https://netmasr.casacam.net
-
-بيانات الشكوى:
-- الاسم: ${name}
-- رقم الخط: ${formData.phoneNumber}
-- المحافظة: ${govArabic}
-- الشركة المزودة: ${formData.company}
-- نوع المشكلة: ${catArabic}
-- وصف المشكلة: ${formData.description}
-
-أرجو التكرم بالنظر في هذه الشكوى.`;
-
-                    // Set URLs for buttons
-                    document.getElementById('btnWhatsapp').href = `https://wa.me/201551515505?text=${encodeURIComponent(msgBody)}`;
-                    
-                    const emailSubj = `شكوى خدمة إنترنت – ${formData.company} – ${customId}`;
-                    document.getElementById('btnGmail').href = `https://mail.google.com/mail/?view=cm&to=complaints@tra.gov.eg&su=${encodeURIComponent(emailSubj)}&body=${encodeURIComponent(msgBody)}`;
-
-                    // Handle TRA Button visibility
-                    if (formData.refusedComplaint) {
-                        document.getElementById('btnTraSite').classList.add('hidden');
-                    } else {
-                        document.getElementById('btnTraSite').classList.remove('hidden');
-                    }
-
-                    successMessage.classList.remove('hidden');
-                    complaintForm.reset();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    // Keep visible for 5 minutes so users have time to use the buttons
-                    setTimeout(() => successMessage.classList.add('hidden'), 300000); 
+                            successMessage.classList.remove('hidden');
+                            complaintForm.reset();
+                            if (companyComplaintNumberGroup) {
+                                companyComplaintNumberGroup.classList.remove('hidden-field');
+                            }
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            setTimeout(() => successMessage.classList.add('hidden'), 300000);
                         } else {
                             errorMessage.innerHTML = `<h3>⚠️ تنبيه إداري</h3><p>${result.message || 'حدث خطأ. حاول مجدداً.'}</p>`;
                             errorMessage.classList.remove('hidden');
@@ -299,6 +792,10 @@ document.addEventListener('DOMContentLoaded', () => {
             trackResultContainer.classList.add('hidden');
             trackLoading.classList.remove('hidden');
             trackResultBoxes.innerHTML = '';
+            if (trackActionButtonsContainer) {
+                trackActionButtonsContainer.classList.add('hidden');
+                trackActionButtonsContainer.innerHTML = '';
+            }
             trackBtn.disabled = true;
 
             try {
@@ -332,6 +829,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="track-item"><span class="label">تاريخ التسجيل:</span><strong>${formattedDate}</strong></div>
                         </div>
                     `;
+                    if (trackActionButtonsContainer) {
+                        trackActionButtonsContainer.classList.add('hidden');
+                        generateActionButtons({
+                            customId: data.customId,
+                            name: data.name,
+                            company: data.company,
+                            category: data.category,
+                            description: data.description,
+                            refusedComplaint: data.refusedComplaint
+                        }, govArabic, trackActionButtonsContainer);
+                    }
                     trackResultContainer.classList.remove('hidden');
                 } else {
                     trackResultBoxes.innerHTML = `<div class="alert alert-danger"><h3>❌ خطأ وتطابق الهوية</h3><p>${result.message || 'Complaint ID or phone number is incorrect'}</p></div>`;
